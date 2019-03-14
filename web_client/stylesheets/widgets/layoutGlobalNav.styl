@@ -1,0 +1,58 @@
+.prepareLinkOri
+  display block
+  line-height 2.2
+  font-size 17px
+  color #4a4a4a
+  padding-left 12px
+
+.prepareLinkSeg
+  display block
+  line-height 2.2
+  font-size 17px
+  color #4a4a4a
+  padding-left 12px
+
+.g-seg-nav-container
+  .g-global-nav-main
+    >ul.g-global-nav
+      >li.g-active
+        box-shadow 1px 1px 3px rgba(0,0,0,.05)
+        border-left 0px
+        border-right 1px solid #e0e0e0
+@media (min-width: 721px)
+  ul.g-global-nav
+    >li:hover:not(.g-active)
+      .prepareLinkOri:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        right -1px
+        background-color lightgreen
+
+@media (min-width: 721px)
+  ul.g-global-nav
+    >li:hover:not(.g-active)
+      .g-nav-link:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        left -1px
+        background-color #ffcc00
+      .prepareLinkSeg:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        left -1px
+        background-color lightgreen
+.g-nav-link-tile
+    display block
+    line-height 2.2
+    font-size 17px
+    color #4a4a4a
+    padding-left 12px

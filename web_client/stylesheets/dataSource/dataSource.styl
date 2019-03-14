@@ -1,0 +1,133 @@
+.sidebar 
+    min-width 100%
+    //max-width 40%
+    background #fff
+    color #000
+    min-height 100vh
+    max-height 100vh
+    overflow scroll
+    overflow-x hidden
+.wrapper.active 
+    margin-left -16.66666667%;
+
+.sidebar .sidebar-header 
+//    padding 10px
+    background #fff
+    min-height 0px
+.sidebar ul.components 
+    padding 20px 0
+    border-bottom 1px solid #47748b
+.wrapper 
+    padding-left 0px
+    display flex
+    align-items stretch
+    position absolute
+    transition all 0.3s
+    z-index 1
+.sidebar ul li a 
+//    padding 10px
+    font-size 1.1em
+    display block
+.sidebar ul li a:hover 
+    color #7386D5
+    background #fff
+
+.sidebar ul li.active > a, a[aria-expanded="true"] 
+    color #fff
+    background #6d7fcc
+.sidebar #filesystem ul li a
+	padding 0px
+	font-size 1.1em
+	display inline
+	color #000
+.sidebar #filesystem ol li a
+	padding 0px
+	font-size 1.1em
+	display inline
+	color #000
+
+.sidebar #girder ul li a
+    padding 0px
+    font-size 1.1em
+    display inline
+    color #000
+.sidebar #girder ol li a
+    padding 0px
+    font-size 1.1em
+    display inline
+    color #000
+    
+.sidebar #projects ul li a
+	padding 0px
+	font-size 1.1em
+	display inline
+	color #000
+.sidebar ul p 
+    color #000
+    padding 10px
+a, a:hover, a:focus 
+    color inherit
+    text-decoration none
+    transition all 0.3s
+
+@media (max-width: 768px) 
+    #wrapper 
+        margin-left: -100%
+    
+    #wrapper.active 
+        margin-left: 0
+    
+
+a[data-toggle="collapse"] 
+    position relative
+
+
+.dropdown-toggle::after 
+    display block
+    position absolute
+    top 50%
+    right 20px
+    transform translateY(-50%)
+ul.previewButton 
+    padding 20px
+ul.previewButton a 
+    text-align center
+    font-size 0.9em !important
+    display block
+    border-radius 5px
+    margin-bottom 5px
+
+.g-ds-nav-container
+    .g-global-nav-main
+        >ul.g-global-nav
+            >li
+                pointer-events auto
+.selectionDom
+    position absolute
+    z-index 1
+    display inline-block
+    background rgba(255, 255, 255, 0.9)
+    max-height 90vh
+    overflow auto
+.icon-left-dir
+    float right
+    display none
+
+    &:before    
+        box-shadow 2px 2px 7px 0px #eee
+        background #eee
+        border 1px solid #e2e2e42e
+        border-radius 3px
+        cursor w-resize
+.icon-right-dir
+    float right
+    display none
+
+    &:before    
+        box-shadow 2px 2px 7px 0px #eee
+        background #eee
+        border 1px solid #e2e2e42e
+        border-radius 3px
+        cursor e-resize
+
+

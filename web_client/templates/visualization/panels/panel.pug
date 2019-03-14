@@ -1,0 +1,58 @@
+if panel == 'task'
+  //- .g-global-nav-main
+  //-   ul.g-global-nav
+  //-     each dockerImage in dockerImages
+  //-       li.g-global-nav-li
+  //-         a.g-nav-link.g-nav-link-history-task #{dockerImage}
+  //- .g-global-nav-main
+  ul.g-global-nav
+    each dockerImage in dockerImages
+      //- if key == Tag
+      li.g-folder-list(style="font-size: 15px;border-top: 1px solid #efefef;box-sizing: border-box;padding: 4px 5px 3px;")
+        a.g-nav-link.g-nav-link-history-task(dockerImage=dockerImage) #{dockerImage.split(':')[0]}
+
+if panel == 'title'
+  //- .g-global-nav-main
+  //-   ul.g-global-nav
+  //-     each dockerImage in dockerImages
+  //-       li.g-global-nav-li
+  //-         a.g-nav-link.g-nav-link-history-task #{dockerImage}
+  ul.g-global-nav
+    each title in titles
+      //- if key == Tag
+      li.g-folder-list(style="font-size: 15px;border-top: 1px solid #efefef;box-sizing: border-box;padding: 4px 5px 3px;")
+        a.g-nav-link.g-nav-link-history-title(title=title) #{title.split('.')[1]}
+
+if panel == 'date'
+  //- .g-global-nav-main
+  //-   ul.g-global-nav
+  //-     each dockerImage in dockerImages
+  //-       li.g-global-nav-li
+  //-         a.g-nav-link.g-nav-link-history-task #{dockerImage}
+  ul.g-global-nav
+    each dateAndJob in dateAndJobs
+      //- if key == Tag
+      li.g-nav-link.g-nav-link-history-title(jobId=dateAndJob.job.jobId,style="font-size: 15px;border-top: 1px solid #efefef;box-sizing: border-box;padding: 4px 5px 3px;")
+        if dateAndJob.job.status == 0
+          a(class='INACTIVE icon-pause')
+        if dateAndJob.job.status == 1
+          a(class='QUEUED icon-ellipsis')
+        if dateAndJob.job.status == 2
+          a(class='RUNNING icon-spin3 animate-spin')
+        if dateAndJob.job.status == 3
+          a(class='SUCCESS icon-ok')
+        if dateAndJob.job.status == 4
+          a(class='ERROR icon-cancel')
+        if dateAndJob.job.status == 5
+          a(class='CANCEL icon-cancel')
+        if dateAndJob.job.status == 820
+          a(class='WORKER_FETCHING_INPUT icon-download')  
+        if dateAndJob.job.status == 821
+          a(class='WORKER_CONVERTING_INPUT icon-shuffle')  
+        if dateAndJob.job.status == 822
+          a(class='WORKER_CONVERTING_OUTPUT icon-shuffle')  
+        if dateAndJob.job.status == 823
+          a(class='WORKER_PUSHING_OUTPUT icon-upload')  
+        if dateAndJob.job.status == 824
+          a(class='WORKER_CANCELING icon-spin3 animate-spin')      
+        a.g-nav-link.g-nav-link-history-title(jobId=dateAndJob.job.jobId) #{new Date(dateAndJob.created)}

@@ -1,0 +1,78 @@
+.Success
+  background-color #53b653
+.Error
+  background-color #d44
+.Running
+  background-color #6666d5
+.Queued
+  background-color #dbc345
+.Canceled
+  background-color #545
+
+.history-task, .history-date, .history-title
+  z-index 1
+  display inline-block
+  background rgba(255, 255, 255, 0.9)
+  max-height 80vh
+  overflow auto
+
+.icon-left-dir
+    float right
+    display none
+
+    &:before    
+        box-shadow 2px 2px 7px 0px #eee
+        background #eee
+        border 1px solid #e2e2e42e
+        border-radius 3px
+        cursor w-resize
+.icon-right-dir
+    float right
+    display none
+
+    &:before    
+        box-shadow 2px 2px 7px 0px #eee
+        background #eee
+        border 1px solid #e2e2e42e
+        border-radius 3px
+        cursor e-resize
+.history-user
+    .g-global-nav-main
+        >ul.g-global-nav
+            >li
+                pointer-events auto  
+
+.QUEUED
+  color #dbc345
+  float left
+.ERROR
+  color #d44
+  float left
+.SUCCESS
+  color #53b653
+  float left
+.CANCEL
+  color #545
+  float left
+.RUNNING
+  color #6666d5
+  float left
+.INACTIVE
+  color #ccc
+  float left
+
+.WORKER_FETCHING_INPUT
+  color #89d2e2
+  float left
+.WORKER_CONVERTING_INPUT
+  color #92f5b5
+  float left
+.WORKER_CONVERTING_OUTPUT
+  color #92f5b5
+  float left
+.WORKER_PUSHING_OUTPUT
+  color #89d2e2
+  float left
+.WORKER_CANCELING
+  color #f89406
+  float left  

@@ -1,0 +1,17 @@
+//- each Tag in diffTags
+//- 	li.dropdown
+//- 		button.dropbtn.h-analyses-dropdown-link(data-toggle='dropdown') #{Tag}
+//- 		.dropdown-menu.h-analyses-dropdown(id=Tag+'_Tasks')
+//- 			ul.taskMenu
+//- 				each analyse in analyses
+.g-hierarchy-breadcrumb-bar
+	ol.breadcrumb(style="padding: 10px;margin-bottom:0px;background-color:#eaebea")
+		li.active
+			i.icon-tag #{tag}
+.g-folder-list-container
+	each value,key in analysis
+		//- if key == Tag
+		ul(style="padding: 0px;list-style-type: none;")
+			each task,taskName in value
+				li.g-folder-list(class=taskName,style="font-size: 15px;border-top: 1px solid #efefef;box-sizing: border-box;padding: 4px 5px 3px;")
+					a.analysisTask(data-api=task.run.replace(/\/run$/, '')) #{taskName}

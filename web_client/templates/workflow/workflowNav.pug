@@ -1,0 +1,10 @@
+.g-global-nav-main
+  ul.g-global-nav
+    each navItem, index in navItems
+      li.g-global-nav-li
+        a.g-nav-link(class=navItem, g-target=navItem, g-name=navItem, g-tag=tags[index])
+          i(class='icon-puzzle')
+          span= navItem
+          i.icon-left-dir
+          i.icon-right-dir
+.g-global-nav-fade

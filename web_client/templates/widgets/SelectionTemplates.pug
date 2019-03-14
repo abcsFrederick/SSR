@@ -1,0 +1,22 @@
+//- .col-md-4.g-ori-selection-nav-container
+.g-ori-selection-container-header
+  if element == 'ori_sortable'
+    .g-selection-container-header-info Total 
+      span #{items.length} 
+      | of images are selected
+  if element == 'seg_sortable'  
+    if items.length == oriItems.length
+      .g-selection-container-header-info Total 
+        span #{items.length} 
+        | of segmentations are selected
+        button.linkOriAndSeg Go
+    else
+      .g-selection-container-header-info Total 
+        span(style='color:red') #{items.length} 
+        | of segmentations are selected
+.col-md-12.g-ori-selection-container
+  div(id=element)
+    each item in items
+      li.selection-list(tag=item._id)
+        //- --console.log(item)
+        span.ui-icon.ui-icon-arrowthick-2-n-s #{item.name}

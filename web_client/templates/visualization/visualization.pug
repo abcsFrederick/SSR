@@ -1,0 +1,29 @@
+.col-md-2.history-user
+  .g-global-nav-main
+    ul.g-global-nav
+      each user in users
+        li.g-global-nav-li
+          a.g-nav-link.g-nav-link-user(user=user.login, class=user.login, id=user._id) #{user.firstName} #{user.lastName} (#{user.login})
+            i.icon-left-dir
+            i.icon-right-dir
+.col-md-2.history-task
+.col-md-2.history-title
+.col-md-6.history-date
+//- .g-global-nav-fade
+//- .wrapper
+//-   nav.sidebar.sidebar-dataSource
+//-     .sidebar.sidebar-header 
+//-       h4 Records
+
+//-     table#records.table.table-hover
+//-       thead
+//-           tr
+//-             th CreatorId
+//-             th Created
+//-             th DockerImage
+//-             th Task Title
+//-   button#recordsCollapse
+//-     span
+//-       a.icon-left-dir
+.resultVisualizer
+

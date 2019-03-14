@@ -1,0 +1,14 @@
+a#backward(style='display:inline') #[span.icon-left-open]
+a.preview-allImages-dropdown-link(style='display:inline' data-toggle='dropdown')
+  | #{currentImage} #[span.icon-down-open]
+a#forward(style='display:inline') #[span.icon-right-open]
+ul#currentImage.dropdown-menu(role='menu')
+    if fromFilesystem
+        each name in allImagesName
+            //- - console.log(name)
+            li(id=name.id).dropdown-submenu.imageSelected
+                    a #{name.get('name')}
+    else if fromSaipArchive
+        each name,index in allImagesName
+            li(id=name.id).dropdown-submenu.imageSelected
+                    a #{name.get('name')}

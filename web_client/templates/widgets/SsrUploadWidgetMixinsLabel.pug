@@ -1,0 +1,7 @@
+label Label
+    input#isLabel(type='checkbox')
+    label#potentialLabelNameDom(style='display: none') Choice your label
+      select#potentialLabelName 
+          option 
+          each name in potentialLabelName
+            option #{name}

@@ -1,0 +1,53 @@
+//- .g-global-nav-main
+//-   ul.g-global-nav
+//-     each navItem in navItems
+//-       li.g-global-nav-li
+//-         a.g-nav-link(g-target=navItem.target, g-name=navItem.name, href=`#${navItem.target}`)
+//-           i(class=navItem.icon)
+//-           span= navItem.name
+//-     if element=='ori'
+//-       li.g-global-nav-li
+//-           a.g-nav-link.prepareLinkOri(g-target='preparations', g-name='preparations')
+//-             i(class='icon-edit') 
+//-             span Prepare
+//-     if element=='seg'
+//-       li.g-global-nav-li
+//-           a.g-nav-link.prepareLinkSeg(g-target='preparations', g-name='preparations')
+//-             i(class='icon-edit')
+//-             span Prepare
+//- .g-global-nav-fade
+
+//-     box-shadow: -1px 0px 0 #eee;
+//-     padding: 15px 6px 20px 0px;
+//-     background-image: linear-gradient(90deg,#f4f4f4 0,#fff 7px);
+if element=='ori'
+  .g-global-nav-main
+    ul.g-global-nav
+      li.g-global-nav-li
+          a.g-nav-link-tile.OriginalTile
+            span Original
+      each navItem in navItems
+        li.g-global-nav-li
+          a.g-nav-link(g-target=navItem.target, g-name=navItem.name, href=`#${navItem.target}`)
+            i(class=navItem.icon)
+            span= navItem.name
+      li.g-global-nav-li
+          a.g-nav-link.prepareLinkOri(g-target='preparations', g-name='preparations')
+            i(class='icon-edit')
+            span Prepare
+
+if element=='seg'
+  .g-global-nav-main(style='box-shadow: inset 1px 0px 0 #eee;padding: 15px 6px 20px 0px;background-image: linear-gradient(90deg,#f4f4f4 0,#fff 7px);')
+    ul.g-global-nav
+      li.g-global-nav-li
+          a.g-nav-link-tile.SegmentationTile
+            span Segmentation
+      each navItem in navItems
+        li.g-global-nav-li
+          a.g-nav-link(g-target=navItem.target, g-name=navItem.name, href=`#${navItem.target}`)
+            i(class=navItem.icon)
+            span= navItem.name
+      li.g-global-nav-li
+          a.g-nav-link.prepareLinkSeg(g-target='preparations', g-name='preparations')
+            i(class='icon-edit')
+            span Prepare
