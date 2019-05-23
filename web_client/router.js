@@ -4,8 +4,8 @@ import { splitRoute, parseQueryString } from 'girder/misc';
 
 import events from './events';
 
-// var router = new Backbone.Router();
-import router from 'girder/router';
+var router = new Backbone.Router();
+// import router from 'girder/router';
 
 router.setQuery = function setQuery(name, value, options) {
 
@@ -24,7 +24,7 @@ router.setQuery = function setQuery(name, value, options) {
     if (value === undefined || value === null) {
         delete queryString[name];
     } else {
-        if(name === 'step' && value === 'dataSource'){
+        if(name === 'step' && value === 'view'){
             this.flag = true;
         }else{
             this.flag = false;
@@ -37,11 +37,11 @@ router.setQuery = function setQuery(name, value, options) {
     }
     // console.log(queryString)
     this._lastQueryString = queryString;
-    console.log('setQuery   ------40------');
-    console.log(routeParts.base + unparsedQueryString)
+    // console.log('setQuery   ------40------');
+    // console.log(routeParts.base + unparsedQueryString)
     // if(value==='datasource')
     // console.log(routeParts.base + unparsedQueryString);
-    this.enabled(1);
+
     this.navigate(routeParts.base + unparsedQueryString, options);
 };
 // router.setQueryString = function setQuery(queryString, options) {
@@ -69,7 +69,7 @@ router.execute = function execute(callback, args) {
     //     this.new = false;
     //   }
     // },this));
-    let _new = true;
+    // let _new = true;
     
     // console.log(_new)
     // if(_new){
@@ -82,18 +82,26 @@ router.execute = function execute(callback, args) {
     if (callback) {
         callback.apply(this, args);
     }
+    // var queryString = args[args.length - 1];
+    // if (queryString.dialog === 'login') {
+    //     events.trigger('g:loginUi');
+    // } else if (queryString.dialog === 'register') {
+    //     events.trigger('g:registerUi');
+    // } else if (queryString.dialog === 'resetpassword') {
+    //     events.trigger('g:resetPasswordUi');
+    // }
+    _.each(this._lastQueryString || {}, function (value, key) {
 
-    // _.each(this._lastQueryString || {}, function (value, key) {
-    //     if (!_.has(query, key)) {
+        if (!_.has(query, key)) {
 
-    //         events.trigger('query:' + key, null, query);
-    //     }
-    // });
+            events.trigger('query:' + key, null, query);
+        }
+    });
     _.each(query, function (value, key) {
         // console.log('query:' + key);
         events.trigger('query:' + key, value, query);
     });
-    // events.trigger('query', query);
+    events.trigger('query', query);
     this._lastQueryString = query;
 
 };

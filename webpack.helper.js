@@ -2,7 +2,7 @@ module.exports = function (config) {
     config.module.rules.push({
         resource: {
             test: /\.scss$/,
-            include: [/node_modules/]
+            exclude: [/node_modules/]
         },
         use:[{
                 loader: "style-loader" // creates style nodes from JS strings

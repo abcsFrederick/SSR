@@ -1,15 +1,14 @@
 //- .col-md-4.g-ori-selection-nav-container
 .g-ori-selection-container-header
-  if element == 'ori_sortable'
+  if element == 'original_sortable'
     .g-selection-container-header-info Total 
       span #{items.length} 
       | of images are selected
-  if element == 'seg_sortable'  
-    if items.length == oriItems.length
+  if element == 'segmentation_sortable'  
+    if eligible
       .g-selection-container-header-info Total 
         span #{items.length} 
         | of segmentations are selected
-        button.linkOriAndSeg Go
     else
       .g-selection-container-header-info Total 
         span(style='color:red') #{items.length} 
@@ -19,4 +18,5 @@
     each item in items
       li.selection-list(tag=item._id)
         //- --console.log(item)
-        span.ui-icon.ui-icon-arrowthick-2-n-s #{item.name}
+        span #{item.name}
+        i.icon-sort

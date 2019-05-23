@@ -1,32 +1,10 @@
 #g-app-header-container
-	nav.navbar.navbar-default
-		.container-fluid
-			.navbar-header
-				a#s-navbar-brand.navbar-brand SSR Platform
-			.nav.navbar-nav
-				li
-					a#dataSource Data Source
-					
-				li
-					a.active#QC Mapping Segmentation
-				
-				li
-					a#workflow Analysis
-			
-				li
-					a#history History
-			#s-navbar-collapse.collapse.navbar-collapse
-				ul.nav.navbar-nav.navbar-right
-					li.image_name.dropdown
-					li.s-current-user-wrapper.dropdown
-					a#login.g-login(href='https://ncif-f5.ncifcrf.gov/SignIn/NihLoginIntegration.axd?returnUrl=http://localhost:8888/ssr') Log In
-#s-full-page-body-QC
-#s-full-page-body-dataSource(style='display:none')
-#g-dialog-container.modal.fade(tabindex="-1")
-#s-full-page-body-workflow(style='display:none')
-#s-full-page-body-history(style='display:none')
-p.footer &copy; Imaging and Visualization Group, ABCS - 2018
+
+#g-app-body-container.s-full-page-body
+
+p.footer &copy; Imaging and Visualization Group, ABCS - 2019
 
 #Loading.modal
 	.loadingIcon
 		i.fa.icon-spin3.animate-spin
+#g-dialog-container.modal.fade(tabindex="-1")

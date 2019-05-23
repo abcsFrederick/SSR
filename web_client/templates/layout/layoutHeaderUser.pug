@@ -1,6 +1,6 @@
-.g-user-text
+.g-user-text()
   if user
-    a.g-user-dropdown-link(data-toggle="dropdown", data-target="#g-user-action-menu")
+    a.g-user-dropdown-link(style='overflow: inherit' data-toggle="dropdown", data-target="#g-user-action-menu")
       | #[i.icon-user] #{user.get('login')}
       i.icon-down-open
     #g-user-action-menu.dropdown
@@ -19,8 +19,8 @@
             i.icon-logout
             | Log out
   else
-    //if registrationPolicy !== 'closed'
+    if registrationPolicy !== 'closed'
       a.g-register Register
       .g-or-text or
-    a.g-login(href='https://ncif-f5.ncifcrf.gov/SignIn/NihLoginIntegration.axd?returnUrl=http://localhost:8888/ssr') Log In
+    a.g-login Log In
       i.icon-login

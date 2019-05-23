@@ -1,12 +1,15 @@
 import $ from 'jquery';
 import _ from 'underscore';
 
-import FolderCollection from 'girder/collections/FolderCollection';
+import FolderCollection from '../../collections/FolderCollection';
 import LoadingAnimation from 'girder/views/widgets/LoadingAnimation';
 import View from 'girder/views/View';
 
-import FolderListTemplate from 'girder/templates/widgets/folderList.pug';
+import FolderListTemplate from '../../templates/widgets/folderList.pug';
+import '../../stylesheets/widgets/folderList.styl';
+import { getCurrentUser } from 'girder/auth';
 
+// import 'bootstrap-hover-dropdown/bootstrap-hover-dropdown';
 /**
  * This widget shows a list of folders under a given parent.
  * Initialize this with a "parentType" and "parentId" value, which will
@@ -48,7 +51,7 @@ var FolderListWidget = View.extend({
     initialize: function (settings) {
         this.checked = [];
         this._checkboxes = settings.checkboxes;
-
+        this.currentUser = settings.currentUser;
         new LoadingAnimation({
             el: this.$el,
             parentView: this
@@ -57,6 +60,7 @@ var FolderListWidget = View.extend({
         this.collection = new FolderCollection();
         this.collection.append = true; // Append, don't replace pages
         this.collection.filterFunc = settings.folderFilter;
+
 
         this.collection.on('g:changed', function () {
             this.render();
@@ -69,10 +73,15 @@ var FolderListWidget = View.extend({
 
     render: function () {
         this.checked = [];
+
+        this.currentUser = getCurrentUser();
         this.$el.html(FolderListTemplate({
             folders: this.collection.toArray(),
             hasMore: this.collection.hasNextPage(),
-            checkboxes: this._checkboxes
+            checkboxes: this._checkboxes,
+            currentUserGroups: this.currentUser.get('groups'),
+            currentUserId: this.currentUser.id,
+            admin: this.currentUser.get('admin')
         }));
         return this;
     },

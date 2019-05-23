@@ -3,6 +3,7 @@ import dataSourceTemplate from '../../templates/dataSource/dataSource.pug'
 // import filesystem from '../filesystem/filesystem';
 import '../../stylesheets/dataSource/dataSource.styl';
 import { restRequest } from 'girder/rest';
+import { getCurrentUser } from 'girder/auth';
 import CollectionModel from 'girder/models/CollectionModel';
 import FolderModel from 'girder/models/FolderModel';
 import ItemModel from 'girder/models/ItemModel';
@@ -19,7 +20,7 @@ import events from '../../events';
 import AmiViewerSEG from 'girder_plugins/AMI_plugin/views/AMIViewerSEG';
 import PreviewTemplate from '../../templates/preview/preview.pug';
 import PreviewPrepareTemplate from '../../templates/preview/previewPrepareTemplate.pug';
-import ImageNameWidget from '../../templates/widgets/ImageName.pug';
+// import ImageNameWidget from '../../templates/widgets/ImageName.pug';
 import router from '../../router';
 // import UserView from 'girder/views/body/UserView';
 // import UserFoldersWidget from '../widgets/userFoldersWidget';
@@ -29,6 +30,7 @@ import SaipView from '../widgets/SaipViewWidget';
 import { splitRoute, parseQueryString } from 'girder/misc';
 
 import AnnotationSelector from '../widgets/AnnotationSelectorWidget';
+import ImageActions from './imageActions';
 
 var dataSource =  View.extend({
 	events:{
@@ -57,8 +59,9 @@ var dataSource =  View.extend({
             if (unparsedQueryString.length > 0) {
                 unparsedQueryString = '?' + unparsedQueryString;
             }
-        router.enabled(1);
-        router.navigate('ds_users' + unparsedQueryString, {trigger: true});
+        // router.enabled(1);
+        // console.log(curRoute);
+        router.navigate('ds_user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
         // $('.selectionDom').collapse('toggle');
         
         // if(link.parent().hasClass('g-active')){
@@ -104,8 +107,9 @@ var dataSource =  View.extend({
             if (unparsedQueryString.length > 0) {
                 unparsedQueryString = '?' + unparsedQueryString;
             }
-        router.enabled(1);
-        router.navigate('ds_collections' + unparsedQueryString, {trigger: true});
+        // router.enabled(1);
+        // router.navigate('ds_collections' + unparsedQueryString, {trigger: true});
+        router.navigate('ds_collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
 
         $('.ds-Filesystem > .icon-left-dir').show();
         link.parent().addClass('g-active');
@@ -144,7 +148,7 @@ var dataSource =  View.extend({
             if (unparsedQueryString.length > 0) {
                 unparsedQueryString = '?' + unparsedQueryString;
             }
-        router.enabled(1);
+        // router.enabled(1);
         router.navigate('ds_saip' + unparsedQueryString, {trigger: true});
 
         $('.ds-SAIP > .icon-left-dir').show();
@@ -159,9 +163,10 @@ var dataSource =  View.extend({
     },
 		'click #sidebarCollapse':'dataSourceCollapse',
 		'click #preview':'prepareInput',
-		'click #processingPreview':'previewSelection',
-		'click #forward':'forward',
-		'click #backward':'backward',
+		// 'click #processingPreview':'previewSelection',
+    'click #startView':'startView',
+		// 'click #forward':'forward',
+		// 'click #backward':'backward',
 		'click .cancel':'closePreviewModal',
 		'click .close':'closePreviewModal'
 	},
@@ -187,37 +192,55 @@ var dataSource =  View.extend({
 		this.totalSeriesIdInit=[];
 		this.totalSeriesIdentityInit=[];
     this.controlPanel = setting.controlPanel;
+    this.SSR_ProjectCollection = setting.SSR_ProjectCollection
 		this.currentUser = setting.currentUser;
 		this.itemsCollection = new ItemCollection();
 		this.filesCollection = new FileCollection();
-		this.$el.html(dataSourceTemplate())
+
+    // console.log(getCurrentUser())
+    this.$el.html(dataSourceTemplate({
+      SSR_Project:this.SSR_ProjectCollection,
+      user:getCurrentUser()
+    }))
+		
 		this.SAIPHierarchyBreadcrumbObjects=[{'object':{'name':'SAIP'},'type':'SAIP'}];
 		
-		this.listenTo(events,'preview:selectionWindow',this.selectionWindow);
+		// this.listenTo(events,'preview:selectionWindow',this.selectionWindow);
 		// this.listenTo(events,'ssr:chooseFolderItem',this.findPath)
 		// this.listenTo(events,'query:PreviewFile', this.PreviewFile);
 		// this.listenTo(events,'query:PreviewFileAndSEG', this.PreviewFile);
-		this.listenTo(events,'preview:forward',this.forward);
-		this.listenTo(events,'preview:backward',this.backward);
-		this.listenTo(events,'preview:imageSelected',this.selectRandom);
-		
-		this.listenTo(events,'ds:selectUsers',this.selectUsers);
-    this.listenTo(events,'ds:selectCollections',this.selectCollections);
-    this.listenTo(events,'ds:selectSAIP',this.selectSAIP);
-    /*Set visualized item's parent folder (not workspace folder)*/
-    this.listenTo(events,'query:filesystemFolder',this.filesystemFolder);
 
+    this.listenTo(events, 'query:mode', this.changeMode);
+		this.listenTo(events, 'preview:forward', this.forward);
+		this.listenTo(events, 'preview:backward', this.backward);
+		this.listenTo(events, 'preview:imageSelected', this.selectRandom);
+
+		this.listenTo(events, 'ds:selectUsers', this.selectUsers);
+    this.listenTo(events, 'ds:selectCollections', this.selectCollections);
+
+    this.listenTo(events, 'ds:selectSAIP', this.selectSAIP);
+    /*Set visualized item's parent folder (not workspace folder)*/
+    this.listenTo(events, 'query:filesystemFolder', this.filesystemFolder);
+    // console.log('registor ds:navigateTo')
 		events.on('ds:navigateTo', this.navigateTo, this);
     events.on('ds:highlightItem', this.selectForView, this);
     
-    this.listenTo(events,'query:PreviewFileItem',this.PreviewFileItem);
-    this.listenTo(events,'ami:overlaySelectedAnnotation',this.overlaySelectedAnnotation);
-    this.listenTo(events,'ami:removeSelectedAnnotation',this.removeSelectedAnnotation);
-    this.listenTo(events,'ds:saveAnnotationAlert',this.saveAnnotationAlert);
+    this.listenTo(events, 'query:PreviewFileItem', this.PreviewFileItem);
+    this.listenTo(events, 'query:editSegmentationFolderId', this.editSegmentationFolderId);
+    this.listenTo(events, 'query:cursorSize', this.setCursorSize);
+    this.listenTo(events, 'query:labelColor', this.setLabelColor);
+
+    this.listenTo(events, 'ami:overlaySelectedAnnotation', this.overlaySelectedAnnotation);
+    this.listenTo(events, 'ami:removeSelectedAnnotation', this.removeSelectedAnnotation);
+    this.listenTo(events, 'ds:saveAnnotationAlert', this.saveAnnotationAlert);
+
+
+    // console.log('query:mode')
+    
 	},
 	navigateTo: function (view, settings, opts) {
-      router.enabled(1);
-      // console.log($('#girder'));
+      // router.enabled(1);
+
       $('#girder').collapse()
       settings = settings || {};
       opts = opts || {};
@@ -228,7 +251,12 @@ var dataSource =  View.extend({
           if (this.dsUserView) {
               this.dsUserView.destroy();
           }
-
+          if (this.dsCollectionsView) {
+              this.dsCollectionsView.destroy();
+              this.dsCollectionsView = null;
+          }
+          this.fromFilesystem = true;
+          this.fromSaipArchive = false;
           settings = _.extend(settings, {
               parentView: this,
               brandName: this.brandName,
@@ -244,12 +272,17 @@ var dataSource =  View.extend({
               this.dsUserView.render();
           }
         }
-        if(settings.viewName=='dsFilesystemView')
+        if(settings.viewName=='dsSSRProjectView')
         {
           if (this.dsCollectionsView) {
               this.dsCollectionsView.destroy();
           }
-
+          if (this.dsUserView) {
+              this.dsUserView.destroy();
+              this.dsUserView = null;
+          }
+          this.fromFilesystem = true;
+          this.fromSaipArchive = false;
           settings = _.extend(settings, {
               parentView: this,
               brandName: this.brandName,
@@ -265,64 +298,93 @@ var dataSource =  View.extend({
               this.dsCollectionsView.render();
           }
         }
+
+        if(settings.viewName=='dsSAIPProjectView')
+        {
+          if (this.dsSaipView) {
+              this.dsSaipView.destroy();
+          }
+
+          this.fromFilesystem = false;
+          this.fromSaipArchive = true;
+          settings = _.extend(settings, {
+            parentView:this,
+            currentUser:this.currentUser
+          });
+
+          /* We let the view be created in this way even though it is
+           * normally against convention.
+           */
+          this.dsSaipView = new view(settings); // eslint-disable-line new-cap
+
+          // if (opts.renderNow) {
+          //     this.dsSaipView.render();
+          // }
+        }
+        this.selectForView(settings.viewName)
+        // console.log(settings.viewName)
       } else {
           console.error('Undefined page.');
       }
       return this;
   },
-  selectSAIP(params){
-    this.fromFilesystem = false;
-    this.fromSaipArchive = true;
-    if(params.el =='.selectionDom')
-    {
-      params = _.extend(params,{
-        parentView:this,
-        currentUser:this.currentUser
-      })
-      if (this.dsSaipView) {
-        this.dsSaipView.destroy();
-      }
-      this.dsSaipView = new SaipView(params);
+  // selectSAIP(params){
 
-      // this.dsSaipView.render()
-    }
-  },
-  selectCollections(params){
-    this.fromFilesystem = true;
-    this.fromSaipArchive = false;
-    if(params.el =='.selectionDom')
-    {
-      params = _.extend(params,{
-        parentView:this
-      })
-      if (this.dsCollectionsView) {
-        this.dsCollectionsView.destroy();
-      }
-      this.dsCollectionsView = new CollectionsView(params);
+  //   this.fromFilesystem = false;
+  //   this.fromSaipArchive = true;
+  //   if(params.el =='.selectionDom')
+  //   {
+  //     params = _.extend(params,{
+  //       parentView:this,
+  //       currentUser:this.currentUser
+  //     })
+  //     if (this.dsSaipView) {
+  //       this.dsSaipView.destroy();
+  //     }
+  //     this.dsSaipView = new SaipView(params);
 
-      this.dsCollectionsView.render()
-    }
-  },
-  selectUsers(params){
-    this.fromFilesystem = true;
-    this.fromSaipArchive = false;
-    if(params.el == '.selectionDom')
-    {
-      params = _.extend(params,{
-        parentView:this
-      })
-      if (this.dsUsersView) {
-        this.dsUsersView.destroy();
-      }
-      this.dsUsersView = new UsersView(params);
+  //     // this.dsSaipView.render()
+  //   }
+  // },
+  // selectCollections(params){
+  //   this.fromFilesystem = true;
+  //   this.fromSaipArchive = false;
+  //   if(params.el =='.selectionDom')
+  //   {
+  //     params = _.extend(params,{
+  //       parentView:this,
+  //       currentUser:this.currentUser
+  //     })
+  //     if (this.dsCollectionsView) {
+  //       this.dsCollectionsView.destroy();
+  //     }
+  //     this.dsCollectionsView = new CollectionsView(params);
 
-      this.dsUsersView.render()
-    }
-  },
-	selectionWindow(e){
-		console.log('selectionWindow')
-		console.log(e)
-	},
+  //     this.dsCollectionsView.render()
+  //   }
+  // },
+  // selectUsers(params){
+
+  //   this.fromFilesystem = true;
+  //   this.fromSaipArchive = false;
+  //   if(params.el == '.selectionDom')
+  //   {
+  //     params = _.extend(params,{
+  //       parentView:this,
+  //       currentUser:this.currentUser
+  //     })
+  //     if (this.dsUsersView) {
+  //       this.dsUsersView.destroy();
+  //     }
+  //     this.dsUsersView = new UsersView(params);
+
+  //     this.dsUsersView.render()
+  //   }
+  // },
+	// selectionWindow(e){
+	// 	console.log('selectionWindow')
+	// 	console.log(e)
+	// },
   overlaySelectedAnnotation(annotationItemId){
     console.log('overlaySelectedAnnotation: ' + annotationItemId);
     this.getImageFilesFromItemPromise(annotationItemId).then((files)=>{
@@ -337,7 +399,7 @@ var dataSource =  View.extend({
     });
   },
   removeSelectedAnnotation(annotationItemId){
-    console.log('removeSelectedAnnotation: ' + annotationItemId);
+    // console.log('removeSelectedAnnotation: ' + annotationItemId);
     this.getImageFilesFromItemPromise(annotationItemId).then((files)=>{
       if(files[0].exts[0]==='nrrd'){
         let referenceAnnotation_url ='api/v1/file/'+files[0]['_id']+'/download?contentDisposition=attachment&contentType=application%2Fnrrd';
@@ -355,11 +417,12 @@ var dataSource =  View.extend({
   //   }else{
   //     console.log('false');
   //   }
-    // console.log('359');
+    // console.log('412');
     // console.log(router.flag)
-    if(router.flag || parseQueryString(splitRoute(Backbone.history.fragment).name)['step'] === 'dataSource'){
+    if(router.flag || parseQueryString(splitRoute(Backbone.history.fragment).name)['step'] === 'View'){
       this.currentImageId = e;
-      if(this._openId!==this.currentImageId){
+      // if(this._openId !== this.currentImageId || this._mode !== this.mode){
+        // this._mode = this.mode;
   			this._openId=this.currentImageId;
   	  	this.getImageFilesFromItemPromise(e).then((files)=>{
   	  		// console.log('oriFile id ')
@@ -373,7 +436,7 @@ var dataSource =  View.extend({
   	               return 'api/v1/file/'+eachFile['_id']+'/download?contentDisposition=attachment';
   	      	});
   	      }
-  	      $('#PreviewSelection').hide();
+  	      // $('#PreviewSelection').hide();
   					if (this.amiDisplayPreview) {
   	          this.init=false;
               console.log(this.amiDisplayPreview.annotationNeedsUpdate);
@@ -386,42 +449,78 @@ var dataSource =  View.extend({
   	              parentView:this
   	          });
   	        }
-  					this.amiDisplayPreview.render(this.init,displayUrl);
+  					this.amiDisplayPreview.render(this.init, displayUrl);
   					this.amiDisplayPreview.once('g:imageRendered', () => {
   						restRequest({
   			        url: 'SSR/segmentationCheck/' + this.currentImageId,
   			      }).then(_.bind((items) => {
   			      	// console.log(items.length);
+                
   			      	if(typeof(items) !== 'string'){
-  			      		let lastSegItem = items[items.length-1];
-  				      	let lastSegItemModel = new ItemModel(lastSegItem);
-  				      	// console.log('last segItem id ')
-  				      	// console.log(lastSegItemModel.get('_id'))
-  				      	this.getImageFilesFromItemPromise(lastSegItemModel.get('_id')).then((files)=>{
+
+                  let SegItem, SegItemModel;
+                  if(this.mode === 'view' || 'undefined'){
+                    SegItem = items[items.length-1];
+                    SegItemModel = new ItemModel(SegItem);
+                  }
+  			      		if(this.mode === 'edit'){
+
+                    SegItem = items.filter((x) => { if(x.folderId === this.editSegmentationFolderId){return this}});
+                    SegItemModel = new ItemModel(SegItem[0]);
+                  }
+
+  				      	this.getImageFilesFromItemPromise(SegItemModel.get('_id')).then((files)=>{
   				      		// console.log('segFile id ')
   				      		// console.log(files[0]['_id'])
   				      		if(files[0].exts[0]==='nrrd'){
   					          let referenceAnnotation_url ='api/v1/file/'+files[0]['_id']+'/download?contentDisposition=attachment&contentType=application%2Fnrrd';
-  					          this.amiDisplayPreview.drawAnnotation(referenceAnnotation_url, true, true, lastSegItemModel.get('_id'));
+  					          if(this.mode === 'edit'){
+                        console.log(this.labelColor, this.cursorSize)
+                        this.amiDisplayPreview.drawAnnotation(referenceAnnotation_url, true, true, SegItemModel.get('_id'), this.mode, this.labelColor, this.cursorSize);
+                        this.amiDisplayPreview.currentAnnotationItemId = SegItemModel.get('_id');
+                      }
+                      if(this.mode === 'view' || 'undefined'){
+                        this.amiDisplayPreview.drawAnnotation(referenceAnnotation_url, true, true, SegItemModel.get('_id'), this.mode, this.labelColor, this.cursorSize);
+                      }
   						      }else{
   					          let referenceAnnotation_url = _.map(files,function(eachFile){
   					               return 'api/v1/file/'+eachFile['_id']+'/download?contentDisposition=attachment';
   						      	});
   						      }
   				      	});
-                  this.amiDisplayPreview.annotationSelector(items);
+                  if(this.imageActions){
+                    this.imageActions.destroy();
+                  }
+                  this.imageActions = new ImageActions({
+                    el: $('#Actions'),
+                    mode: this.mode,
+                    currentViewFolderId: this.sourceFolderId,
+                    currentImageSegmentations: items,
+                    itemsCollectionIds: this.itemsCollectionIds,
+                    allImagesName: this.itemsCollection.models,
+                    currentImage: this.currentImage.get('name'),
+                    currentImageId:this.currentImage.get('_id'),
+                    fromFilesystem: this.fromFilesystem,
+                    fromSaipArchive: this.fromSaipArchive,
+                    parentView: this
+                  }).render();
+                  // console.log(this.amiDisplayPreview.edit);
+                  this.amiDisplayPreview.annotationSelector(items, this.mode, this.editSegmentationFolderId, this.labelColor, this.cursorSize);
+                  console.log('507');
+                  console.log(this.amiDisplayPreview.edit);
 
-                  // this.annotationSelector = new AnnotationSelector({
-                  //   el:'.visualizer',
-                  //   parentView:this
-                  // });
   			      	}
   			      },this))
   					});
   	  	});
-  	  }
+  	  // }
     }
 	},
+  editSegmentationFolderId(editSegmentationFolderId){
+    // console.log('editSegmentationFolderId:')
+    // console.log(editSegmentationFolderId)
+    this.editSegmentationFolderId = editSegmentationFolderId;
+  },
 	getImageFilesFromItemPromise(e){
 		return new Promise(_.bind(function(resolve,reject){
 			restRequest({
@@ -638,7 +737,7 @@ var dataSource =  View.extend({
 	// 	}	
 	// },
   /*
-    White Go is click
+    preview is click
   */
 	prepareInput(){
 		// if(this.totalSeriesId.length){
@@ -648,7 +747,7 @@ var dataSource =  View.extend({
 		// 	this.fromFilesystem = true;
 		// 	this.fromSaipArchive = false;
 		// }
-    console.log('prepareInput')
+    // console.log('prepareInput')
 		let folderModels=[];
 		let itemModels=[];
 		this.allSEGId=[];
@@ -661,6 +760,9 @@ var dataSource =  View.extend({
 			$('#PreviewSelection .modal-body').html(PreviewPrepareTemplate())
 			$('#PreviewSelection').show();
 
+      /*
+        White Go is click
+      */
 			$('#startPrepare').on('click',_.bind(function(){
 				restRequest({
 						method:'POST',
@@ -669,11 +771,12 @@ var dataSource =  View.extend({
 					}).then(_.bind((newFolder)=>{
 						let taskFolder = new FolderModel(newFolder);
             /*folders should be limited as only one*/
-						let folders = this.dsUserView.hierarchyWidget.folderListView.checked;
+            this.oriCurrentView = this.dsUserView||this.dsCollectionsView;
+						let folders = this.oriCurrentView.hierarchyWidget.folderListView.checked;
 			      this.itemListsFromFolder=[];
 			      for(let a=0;a<folders.length;a++){
 
-			          let folderModel = this.dsUserView.hierarchyWidget.folderListView.collection.get(this.dsUserView.hierarchyWidget.folderListView.checked[a]);
+			          let folderModel = this.oriCurrentView.hierarchyWidget.folderListView.collection.get(this.oriCurrentView.hierarchyWidget.folderListView.checked[a]);
 			          restRequest({
 									method:'GET',
 									url:'/item',
@@ -681,8 +784,8 @@ var dataSource =  View.extend({
 								}).then(_.bind((items)=>{
 									this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
 									this.itemsCollection.set(this.itemListsFromFolder);
-                  console.log(folderModel.get('_id'))
-                  router.enabled(1);
+                  // console.log(folderModel.get('_id'))
+                  // router.enabled(1);
                   router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
                   this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
                   // console.log(this.controlPanel)
@@ -737,7 +840,7 @@ var dataSource =  View.extend({
             }).then(_.bind((items)=>{
               this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
               this.itemsCollection.set(this.itemListsFromFolder);
-              router.enabled(1);
+              // router.enabled(1);
               router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
               this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
             },this))
@@ -775,16 +878,16 @@ var dataSource =  View.extend({
     Green GO is click
   */
 	previewSelection(){
-    console.log('777');
-    console.log(this.itemsCollection.models);
+    // console.log('777');
+    // console.log(this.itemsCollection.models);
 		if(this.fromFilesystem){
-			router.enabled(1);
+			// router.enabled(1);
 
 			router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true});
 
 		}
     else if(this.fromSaipArchive){
-      router.enabled(1);
+      // router.enabled(1);
 
       router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true});
    //  	$('.image_name').html(ImageNameWidget({
@@ -809,17 +912,83 @@ var dataSource =  View.extend({
 		
 		this.selectorSelection();
 	},
+  /*
+    Green View is click
+  */
+  startView(){
+    // console.log('873');
+    this.itemsCollection = new ItemCollection();
+    if(this.fromFilesystem){
+      /*folders should be limited as only one*/
+      this.oriCurrentView = this.dsUserView||this.dsCollectionsView;
+      let folders = this.oriCurrentView.hierarchyWidget.folderListView.checked;
+      this.itemListsFromFolder=[];
+      for(let a=0;a<folders.length;a++){
+
+          let folderModel = this.oriCurrentView.hierarchyWidget.folderListView.collection.get(this.oriCurrentView.hierarchyWidget.folderListView.checked[a]);
+          this.currentViewFolder = folderModel;
+          restRequest({
+            method:'GET',
+            url:'/item',
+            data:{'folderId':folderModel.get('_id')}
+          }).then(_.bind((items)=>{
+            this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
+            this.itemsCollection.set(this.itemListsFromFolder);
+            // console.log(folderModel.get('_id'))
+            // router.enabled(1);
+            router.setQuery('filesystemFolder', folderModel.get('_id'));
+            this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+            router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'));
+            router.setQuery('mode','view', {trigger: true, replace: true});
+            this.mode = 'view';
+            // console.log(this.controlPanel)
+            /*workSpaceFolder should receive `input images' parent folder id` here*/
+            // router.setQuery('workSpaceFolder', folderModel.get('_id'), {trigger: true})
+          },this))
+      }
+      
+
+    }
+    else if(this.fromSaipArchive){
+      // router.enabled(1);
+      let studyId = this.dsSaipView.saipProjectsView.saipExperimentsView.saipPatientsView.saipStudiesView.selectecStudyId;
+      this.itemListsFromFolder=[];
+      restRequest({
+        method:'GET',
+        url:'SAIP/' + studyId + '/SAIPExistingValidation'
+      }).then(_.bind((res)=>{
+        let folderModel = new FolderModel(res);
+        this.currentViewFolder = folderModel;
+        restRequest({
+          method:'GET',
+          url:'/item',
+          data:{'folderId':folderModel.get('_id')}
+        }).then(_.bind((items)=>{
+          this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
+          this.itemsCollection.set(this.itemListsFromFolder);
+          // router.enabled(1);
+          router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
+          this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+          router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true});
+        },this))
+      },this))
+    }
+    
+    this.selectorSelection();
+  },
+
   filesystemFolder(sourceFolderId){
-    console.log('filesystemFolder');
-    console.log(sourceFolderId);
+    // console.log('filesystemFolder');
+    // console.log(sourceFolderId);
     this.itemListsFromFolder = [];
     this.itemsCollectionIds = [];
+    this.sourceFolderId = sourceFolderId;
     // this.fromFilesystem = true;
     // this.fromSaipArchive = false;
     restRequest({
       method:'GET',
       url:'/item',
-      data:{'folderId':sourceFolderId}
+      data:{'folderId': this.sourceFolderId}
     }).then(_.bind((items)=>{
       this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
       this.itemsCollection.set(this.itemListsFromFolder);
@@ -830,16 +999,7 @@ var dataSource =  View.extend({
       if(!this.currentImage){
         this.currentImage = this.itemsCollection.models[0];
       }
-      console.log('832');
-      console.log(this.itemsCollection.models);
-      console.log(this.currentImage);
-      $('.image_name').html(ImageNameWidget({
 
-        allImagesName:this.itemsCollection.models,
-        currentImage:this.currentImage.get('name'),
-        fromFilesystem:this.fromFilesystem,
-        fromSaipArchive:this.fromSaipArchive
-      }))
       for(let a = 0; a < this.itemsCollection.models.length; a++)
       {
         // window.js = this.itemsCollection.models[a]
@@ -863,95 +1023,95 @@ var dataSource =  View.extend({
       events.trigger('preview:imageSelected',e)
     });
   },
-	forward(){
+	// forward(){
 		
-		// if(this.fromFilesystem){
-      console.log(this.currentImageId);
-			let nextImageId;
-			let nextImageIndex = this.itemsCollectionIds.indexOf(this.currentImageId)+1;
-			if(nextImageIndex === this.itemsCollectionIds.length){
-				nextImageIndex = 0;
-				nextImageId = this.itemsCollectionIds[nextImageIndex];
-			}
-			else{
-				nextImageId = this.itemsCollectionIds[nextImageIndex];
-			}
-			this.currentImageId = nextImageId;
-			// $('.preview-allImages-dropdown-link').html(this.itemsCollection.models[nextImageIndex].get('name'));
-			router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
-		// }else if(this.fromSaipArchive){
-		// 	//Only ORI
-		// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
-		// 		let nextImageId;
-		// 		let nextImageIndex=this.totalSeriesId.indexOf(this.currentImageId)+1;
-		// 		if(nextImageIndex===this.totalSeriesId.length){
-		// 			nextImageIndex = 0;
-		// 			nextImageId = this.totalSeriesId[nextImageIndex];
-		// 		}
-		// 		else{
-		// 			nextImageId = this.totalSeriesId[nextImageIndex];
-		// 		}
-		// 		this.currentImageId = nextImageId;
-		// 		console.log(this.currentImageId);
-		// 		// $('.preview-allImages-dropdown-link').html(this.totalSeriesIdentity[nextImageIndex]);
-		// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
-		// 	}
-		// }
-	},
-	backward(){
-		// if(this.fromFilesystem)
-		// {	
-			let nextImageId;
-			let nextImageIndex = this.itemsCollectionIds.indexOf(this.currentImageId) - 1;
-			if(nextImageIndex < 0){
-				nextImageIndex = this.itemsCollectionIds.length - 1;
-				nextImageId = this.itemsCollectionIds[nextImageIndex];
-			}
-			else{
-				nextImageId = this.itemsCollectionIds[nextImageIndex];
-			}
-			this.currentImageId = nextImageId;
-			// $('.preview-allImages-dropdown-link').html(this.itemsCollection.models[nextImageIndex].get('name'));
-			router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
+	// 	// if(this.fromFilesystem){
+ //      console.log(this.currentImageId);
+	// 		let nextImageId;
+	// 		let nextImageIndex = this.itemsCollectionIds.indexOf(this.currentImageId)+1;
+	// 		if(nextImageIndex === this.itemsCollectionIds.length){
+	// 			nextImageIndex = 0;
+	// 			nextImageId = this.itemsCollectionIds[nextImageIndex];
+	// 		}
+	// 		else{
+	// 			nextImageId = this.itemsCollectionIds[nextImageIndex];
+	// 		}
+	// 		this.currentImageId = nextImageId;
+	// 		// $('.preview-allImages-dropdown-link').html(this.itemsCollection.models[nextImageIndex].get('name'));
+	// 		router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
+	// 	// }else if(this.fromSaipArchive){
+	// 	// 	//Only ORI
+	// 	// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
+	// 	// 		let nextImageId;
+	// 	// 		let nextImageIndex=this.totalSeriesId.indexOf(this.currentImageId)+1;
+	// 	// 		if(nextImageIndex===this.totalSeriesId.length){
+	// 	// 			nextImageIndex = 0;
+	// 	// 			nextImageId = this.totalSeriesId[nextImageIndex];
+	// 	// 		}
+	// 	// 		else{
+	// 	// 			nextImageId = this.totalSeriesId[nextImageIndex];
+	// 	// 		}
+	// 	// 		this.currentImageId = nextImageId;
+	// 	// 		console.log(this.currentImageId);
+	// 	// 		// $('.preview-allImages-dropdown-link').html(this.totalSeriesIdentity[nextImageIndex]);
+	// 	// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
+	// 	// 	}
+	// 	// }
+	// },
+	// backward(){
+	// 	// if(this.fromFilesystem)
+	// 	// {	
+	// 		let nextImageId;
+	// 		let nextImageIndex = this.itemsCollectionIds.indexOf(this.currentImageId) - 1;
+	// 		if(nextImageIndex < 0){
+	// 			nextImageIndex = this.itemsCollectionIds.length - 1;
+	// 			nextImageId = this.itemsCollectionIds[nextImageIndex];
+	// 		}
+	// 		else{
+	// 			nextImageId = this.itemsCollectionIds[nextImageIndex];
+	// 		}
+	// 		this.currentImageId = nextImageId;
+	// 		// $('.preview-allImages-dropdown-link').html(this.itemsCollection.models[nextImageIndex].get('name'));
+	// 		router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
 
-			// }
-		// }else if(this.fromSaipArchive){
-		// 	//Only ORI
-		// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
-		// 		let nextImageId;
-		// 		let nextImageIndex=this.totalSeriesId.indexOf(this.currentImageId)-1;
-		// 		if(nextImageIndex<0){
-		// 			nextImageIndex = this.totalSeriesId.length - 1;
-		// 			nextImageId = this.totalSeriesId[nextImageIndex];
-		// 		}
-		// 		else{
-		// 			nextImageId = this.totalSeriesId[nextImageIndex];
-		// 		}
-		// 		this.currentImageId = nextImageId;
-		// 		// $('.preview-allImages-dropdown-link').html(this.totalSeriesIdentity[nextImageIndex]);
-		// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
-		// 	}
-		// }
-	},
-	/*
-		User select particular image as they wish from preloaded dataset for viewing
-	*/
-	selectRandom(e){
-		// if(this.fromFilesystem){
-			this.currentImageId = e.currentTarget.id
-			// $('.preview-allImages-dropdown-link').html(e.currentTarget.textContent);
-			router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
+	// 		// }
+	// 	// }else if(this.fromSaipArchive){
+	// 	// 	//Only ORI
+	// 	// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
+	// 	// 		let nextImageId;
+	// 	// 		let nextImageIndex=this.totalSeriesId.indexOf(this.currentImageId)-1;
+	// 	// 		if(nextImageIndex<0){
+	// 	// 			nextImageIndex = this.totalSeriesId.length - 1;
+	// 	// 			nextImageId = this.totalSeriesId[nextImageIndex];
+	// 	// 		}
+	// 	// 		else{
+	// 	// 			nextImageId = this.totalSeriesId[nextImageIndex];
+	// 	// 		}
+	// 	// 		this.currentImageId = nextImageId;
+	// 	// 		// $('.preview-allImages-dropdown-link').html(this.totalSeriesIdentity[nextImageIndex]);
+	// 	// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
+	// 	// 	}
+	// 	// }
+	// },
+	// /*
+	// 	User select particular image as they wish from preloaded dataset for viewing
+	// */
+	// selectRandom(e){
+	// 	// if(this.fromFilesystem){
+	// 		this.currentImageId = e.currentTarget.id
+	// 		// $('.preview-allImages-dropdown-link').html(e.currentTarget.textContent);
+	// 		router.setQuery('PreviewFileItem',this.currentImageId, {trigger: true});
 
-		// }
-		// else if(this.fromSaipArchive){
-		// 	//Only ORI
-		// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
-		// 		this.currentImageId = e.currentTarget.id
-		// 		// $('.preview-allImages-dropdown-link').html(e.currentTarget.textContent);
-		// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
-		// 	}
-		// }
-	},
+	// 	// }
+	// 	// else if(this.fromSaipArchive){
+	// 	// 	//Only ORI
+	// 	// 	if(this.totalSeriesId.length&&!this.allSEGId.length){
+	// 	// 		this.currentImageId = e.currentTarget.id
+	// 	// 		// $('.preview-allImages-dropdown-link').html(e.currentTarget.textContent);
+	// 	// 		router.setQuery('PreviewFile',this.currentImageId, {trigger: true});
+	// 	// 	}
+	// 	// }
+	// },
 	closePreviewModal(){
 		$('#PreviewSelection').hide();
 	},
@@ -1002,7 +1162,7 @@ var dataSource =  View.extend({
 			/*
 				Auto find item which contents segmentation
 			*/
-			console.log(Items, Subfolders);
+			// console.log(Items, Subfolders);
 
 			// Case I
 			if (Items.length === 1 && Subfolders.length === 1){
@@ -1015,7 +1175,7 @@ var dataSource =  View.extend({
 					data:{'sort':'name'}
 				}).then((files)=>{
 					// this.filesCollection.set(files)
-					console.log(selectFolderModel)
+					// console.log(selectFolderModel)
 					// this.setItemCollection(this.filesCollection)
 					if(files.length){
 			 			for(let a=0;a<files.length;a++){
@@ -1028,7 +1188,7 @@ var dataSource =  View.extend({
 			else if(Items.length >= 1 && Subfolders.length === 0){
 	 			console.log('getFilesUnderTask do nothing because all items are treated as original');
 			}
-			console.log(this.allSEGId);
+			// console.log(this.allSEGId);
 			// return restRequest({
 			// 	url:'/item?folderId='+selectFolderModel.id//item.id
 			// }).then((segImageitems)=>{
@@ -1086,7 +1246,7 @@ var dataSource =  View.extend({
 		 			this.allImageId.push(Items[a]['_id'])
 		 		}
 			}
-			console.log(this.allSEGId);
+			// console.log(this.allSEGId);
 			// return restRequest({
 			// 	url:'/folder',
 			// 	data:{'parentType':'folder','parentId':selectFolderModel.id}
@@ -1112,7 +1272,7 @@ var dataSource =  View.extend({
 			// 		Should response something to force user modify 
 			// 	*/
 			// })
-			console.log(Items, Subfolders);
+			// console.log(Items, Subfolders);
 		}
 		let promise;
   	return promise = $.when(getNumberOfItems(),getNumberOfFolders()).then((Items, Subfolders)=>{
@@ -1124,17 +1284,19 @@ var dataSource =  View.extend({
   selectForView: function (viewName) {
 
     this.deactivateAll(viewName);
-    if(viewName == 'dsGirderView')
+
+    if(viewName == 'dsUsersView')
     {
+      // console.log(this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']'))
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-Girder > .icon-left-dir').show();
     }
-    if(viewName == 'dsFilesystemView')
+    if(viewName == 'dsSSRProjectView')
     {
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-Filesystem > .icon-left-dir').show();
     }
-    if(viewName == 'dsSAIPView')
+    if(viewName == 'dsSAIPProjectView')
     {
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-SAIP > .icon-left-dir').show();
@@ -1153,21 +1315,26 @@ var dataSource =  View.extend({
       this.targetTestFile = new FileModel(file);
       // console.log(this.amiDisplayPreview.stack2.rawData[0])
       // var arr_test = new Uint8Array([32,31]);
-      this.amiDisplayPreview.stack2.upPack(this.amiDisplayPreview.stack2.rawData[0]);
+      this.amiDisplayPreview.stack2.unPack(this.amiDisplayPreview.stack2.rawData[0]);
 
-      // var arr = this.amiDisplayPreview.stack2.rawData[0];
-      var arr2 = this.amiDisplayPreview.stack2.oriRawData[0];
+      // let arr = this.amiDisplayPreview.stack2.rawData[0];
+      let arr = this.amiDisplayPreview.stack2.oriRawData[0];
       // var arr3 = this.amiDisplayPreview.stack2.frame[26].pixelData;
 
 
       let nrrdHeaderInfo = this.amiDisplayPreview.reconstructNrrdHeader;
       // window.nrrdHeaderInfo = nrrdHeaderInfo;
 
-      let headerUint16Array = this.nrrdHeaderToUint16Array(nrrdHeaderInfo);
+      // let headerUint16Array = this.nrrdHeaderToUint16Array(nrrdHeaderInfo);
+      let headerUint8Array = this.nrrdHeaderToUint8Array(nrrdHeaderInfo);
+      
+      // let entire = new Uint16Array(headerUint16Array.length + arr.length);
+      let entire = new Uint8Array(headerUint8Array.length + arr.length);
 
-      let entire = new Uint16Array(headerUint16Array.length + arr2.length);
-      entire.set(headerUint16Array);
-      entire.set(arr2, headerUint16Array.length);
+      // entire.set(headerUint16Array);
+      // entire.set(arr, headerUint16Array.length);
+      entire.set(headerUint8Array);
+      entire.set(arr, headerUint8Array.length);
 
       // var files = document.getElementById('filesTest').files;
       // window.arr = arr;
@@ -1180,7 +1347,8 @@ var dataSource =  View.extend({
       // console.log(arr2);
       // console.log(arr3);
       // console.log(entire);
-      var blob = new Blob([headerUint16Array.buffer], {type: ''});
+      // var blob = new Blob([headerUint16Array.buffer], {type: ''});
+      var blob = new Blob([headerUint8Array.buffer], {type: ''});
       // console.log(blob)
       // var arrayBuffer;
       // var fileReader = new FileReader();
@@ -1188,8 +1356,27 @@ var dataSource =  View.extend({
       //     console.log(event.target.result);
       // };
       // fileReader.readAsArrayBuffer(files[0]['slice'](0,600));
+      console.log(file)
       this.targetTestFile.updateContents(entire)
     })
+  },
+  nrrdHeaderToUint8Array(headerString){
+    let binaryArr = [];
+    let Uint8Arr = [];
+    let tmp, tmp8bit;
+    for (let i=0; i < headerString.length; i++) {
+      tmp8bit = headerString[i].charCodeAt(0)
+      binaryArr.push(parseInt(tmp8bit));
+    }
+    // console.log(binaryArr);
+    // window.binaryArr = binaryArr;
+    let significant, octInDecimal;
+    for (let j=0; j < binaryArr.length; j++) {
+      significant = parseInt(binaryArr[j]);
+      octInDecimal = significant;
+      Uint8Arr.push(octInDecimal)
+    }
+    return Uint8Arr;
   },
   nrrdHeaderToUint16Array(headerString){
     let binaryArr = [];
@@ -1199,8 +1386,8 @@ var dataSource =  View.extend({
       tmp8bit = headerString[i].charCodeAt(0)
       binaryArr.push(parseInt(tmp8bit));
     }
-    console.log(binaryArr);
-    window.binaryArr = binaryArr;
+    // console.log(binaryArr);
+    // window.binaryArr = binaryArr;
     let least_significant, most_significant, hexInDecimal;
     for (let j=0; j < binaryArr.length; j=j+2) {
       least_significant = parseInt(binaryArr[j]);
@@ -1214,6 +1401,7 @@ var dataSource =  View.extend({
     if(confirm('Do you want to save annotation change?')){
       this.getImageFilesFromItemPromise(annotationId).then((files)=>{
         if(files[0].exts[0]==='nrrd'){
+
           this.updateFile(files[0]['_id']);
         }else{
           console.error(files[0].exts[0] + ' type annotation is not supported yet');
@@ -1222,6 +1410,15 @@ var dataSource =  View.extend({
     }else{
       console.log('Do not save change');
     }
+  },
+  changeMode(e){
+    this.mode = e;
+  },
+  setCursorSize(e){
+    this.cursorSize = e;
+  },
+  setLabelColor(e){
+    this.labelColor = e;
   }
 })
 

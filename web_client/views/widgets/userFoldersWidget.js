@@ -6,11 +6,11 @@ import AccessWidget from 'girder/views/widgets/AccessWidget';
 import CheckedMenuWidget from 'girder/views/widgets/CheckedMenuWidget';
 import CollectionInfoWidget from 'girder/views/widgets/CollectionInfoWidget';
 import EditCollectionWidget from 'girder/views/widgets/EditCollectionWidget';
-import EditFolderWidget from 'girder/views/widgets/EditFolderWidget';
+import EditFolderWidget from './EditFolderWidget';
 import EditItemWidget from 'girder/views/widgets/EditItemWidget';
 import FolderInfoWidget from 'girder/views/widgets/FolderInfoWidget';
 import FolderListWidget from './FolderListWidget';
-import ItemListWidget from 'girder/views/widgets/ItemListWidget';
+import ItemListWidget from './ItemListWidget';
 import ItemModel from 'girder/models/ItemModel';
 import MetadataWidget from 'girder/views/widgets/MetadataWidget';
 import router from 'girder/router';
@@ -23,7 +23,7 @@ import { getModelClassByName, renderMarkdown, formatCount, capitalize, formatSiz
 import { restRequest, getApiRoot } from 'girder/rest';
 
 import HierarchyBreadcrumbTemplate from 'girder/templates/widgets/hierarchyBreadcrumb.pug';
-import HierarchyWidgetTemplate from 'girder/templates/widgets/hierarchyWidget.pug';
+import HierarchyWidgetTemplate from '../../templates/widgets/hierarchyWidget.pug';
 
 import 'girder/stylesheets/widgets/hierarchyWidget.styl';
 
@@ -116,6 +116,7 @@ var HierarchyWidget = View.extend({
     initialize: function (settings) {
         this.baseRoute = settings.baseRoute || null;
         this.parentModel = settings.parentModel;
+        // console.log(this.parentModel.resourceName)
         this.upload = settings.upload;
 
         this._showActions = _.has(settings, 'showActions') ? settings.showActions : true;
@@ -169,6 +170,7 @@ var HierarchyWidget = View.extend({
             parentView: this
         });
         this.folderListView.on('g:folderClicked', function (folder) {
+            // console.log(folder.resourceName)
             this.descend(folder);
 
             if (this.uploadWidget) {
@@ -361,6 +363,7 @@ var HierarchyWidget = View.extend({
             parentModel: this.parentModel,
             parentView: this
         }).on('g:saved', function (folder) {
+            folder.resourceName = 'folder';
             this.folderListView.insertFolder(folder);
             if (this.parentModel.has('nFolders')) {
                 this.parentModel.increment('nFolders');
@@ -646,7 +649,7 @@ var HierarchyWidget = View.extend({
      */
     uploadDialog: function () {
         var container = $('#g-dialog-container');
-        console.log('uploadDialog');
+        // console.log('uploadDialog');
         new UploadWidget({
             el: container,
             parent: this.parentModel,
@@ -654,7 +657,7 @@ var HierarchyWidget = View.extend({
             parentView: this
         }).on('g:uploadFinished', function (info) {
             handleClose('upload');
-            console.log('g:uploadFinished')
+            // console.log('g:uploadFinished')
             this.upload = false;
             // if (this.parentModel.has('nItems')) {
             //     this.parentModel.increment('nItems', info.files.length);
@@ -936,7 +939,8 @@ var HierarchyWidget = View.extend({
             el: $('#g-dialog-container'),
             modelType: this.parentModel.resourceName,
             model: this.parentModel,
-            parentView: this
+            parentView: this,
+            hideRecurseOption: false
         }).on('g:accessListSaved', function (params) {
             if (params.recurse) {
                 // Refresh list since the public flag may have changed on the children.

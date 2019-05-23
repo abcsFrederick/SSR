@@ -1,16 +1,18 @@
 import { splitRoute } from 'girder/misc';
 import events from './events';
-import ImageView from './views/LandingPage';
+// import PanelContent from './views/panelContent';
 
 import Router from './router';
 import ItemView from 'girder/views/body/ItemView';
 import UserView from './views/widgets/UserViewWidget';
 import CollectionView from './views/widgets/CollectionViewWidget';
+import SaipView from './views/widgets/SaipViewWidget';
 
 function bindRoutes() {
-		
-    Router.route('', 'index', function () {
-        events.trigger('g:navigateTo', ImageView, {});		//ImageView.render()
+
+    Router.route('', 'index', function (params) {
+    	// console.log('call ""');
+      // events.trigger('g:navigateTo', PanelContent, {});		//ImageView.render()
     });
 
 /*DataSource*/
@@ -19,7 +21,7 @@ function bindRoutes() {
 					el:'.selectionDom'
 				}
 		    events.trigger('ds:selectUsers', params);
-		    events.trigger('ds:highlightItem', 'dsGirderView');
+		    events.trigger('ds:highlightItem', 'dsUsersView');
 		});
 
 		Router.route('ds_user/:id', 'user', function (userId, params) {
@@ -30,8 +32,8 @@ function bindRoutes() {
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // dialog: params.dialog
 		    });
-		    events.trigger('ds:selectUsers', params);
-		    events.trigger('ds:highlightItem', 'dsGirderView');
+		    // events.trigger('ds:selectUsers', params);
+		    // events.trigger('ds:highlightItem', 'dsGirderView');
 		});
 		Router.route('ds_user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
 		    UserView.fetchAndInit(userId, {
@@ -46,14 +48,14 @@ function bindRoutes() {
 						el: '.selectionDom'
 		    });
 		    events.trigger('ds:selectUsers', params);
-		    events.trigger('ds:highlightItem', 'dsGirderView');
+		    events.trigger('ds:highlightItem', 'dsUsersView');
 		});
 		Router.route('ds_collections', 'collections', function (params) {
 				params={
 					el:'.selectionDom'
 				}
 		    events.trigger('ds:selectCollections', params);
-		    events.trigger('ds:highlightItem', 'dsFilesystemView');
+		    events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		    
 		});
 		Router.route('ds_collection/:id', 'collectionAccess', function (cid, params) {
@@ -63,11 +65,11 @@ function bindRoutes() {
 	        // folderCreate: params.dialog === 'foldercreate',
 	        // dialog: params.dialog
 	        workflow:'ds',
-	        viewName: 'dsFilesystemView',
+	        viewName: 'dsSSRProjectView',
 		    	el: '.selectionDom'
 	    });
-				events.trigger('ds:selectCollections', params);
-		    events.trigger('ds:highlightItem', 'dsFilesystemView');
+				// events.trigger('ds:selectCollections', params);
+		    // events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		});
 		Router.route('ds_collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
 		    CollectionView.fetchAndInit(cid, {
@@ -80,28 +82,37 @@ function bindRoutes() {
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
 		        workflow:'ds',
-		        viewName: 'dsFilesystemView',
+		        viewName: 'dsSSRProjectView',
 		    		el: '.selectionDom'
 		    });
 		    events.trigger('ds:selectCollections', params);
-		    events.trigger('ds:highlightItem', 'dsFilesystemView');
+		    events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		});
 
-		Router.route('ds_saip', 'users', function (params) {
-				params={
-					el:'.selectionDom'
-				}
-		    events.trigger('ds:selectSAIP', params);
-		    events.trigger('ds:highlightItem', 'dsSAIPView');
+		Router.route('ds_saip', 'user', function (params) {
+				SaipView.fetchAndInit({
+		        workflow:'ds',
+		        viewName: 'dsSAIPProjectView',
+		    		el: '.selectionDom'
+		    });
+		    // events.trigger('ds:selectSAIP', params);
+		    // events.trigger('ds:highlightItem', 'dsSAIPView');
 		});
+
+
+
+
+		
 /*QC*/
 
 		Router.route('qc_saip', 'users', function (params) {
-				params={
-					el:'.g-ori-container'
-				}
-		    events.trigger('qc:selectSAIP', params);
-		    events.trigger('qc:highlightItem', 'oriSAIPView');
+			SaipView.fetchAndInit({
+		        workflow:'qc',
+		        viewName: 'oriqcSAIPProjectView',
+		    		el: '.g-ori-container'
+		    });
+		    // events.trigger('qc:selectSAIP', params);
+		    // events.trigger('qc:highlightItem', 'oriSAIPView');
 		});
 
 		Router.route('seg_collections', 'collections', function (params) {
@@ -157,9 +168,41 @@ function bindRoutes() {
 		    events.trigger('qc:highlightItem', 'segPreparationsView');
 		});
 
-		Router.route('ori_user/:id', 'user', function (userId, params) {
+		// Router.route('ori_seg_user/:id', 'user', function (userId, params) {
+		// 	UserView.fetchAndInit(userId, {
+		//     		viewName: 'ori_segqcUsersView',
+		// 				el: '.g-ori-seg-container'
+		//         // folderCreate: params.dialog === 'foldercreate',
+		//         // dialog: params.dialog
+		//     });
+		// });
+
+		Router.route('qc_user/:id', 'user', function (userId, params) {
 		    UserView.fetchAndInit(userId, {
-		    		viewName: 'oriUsersView',
+		    		viewName: 'qcUserView',
+						el: '.g-ori-container'
+		        // folderCreate: params.dialog === 'foldercreate',
+		        // dialog: params.dialog
+		    });
+		    // console.log(this)
+		});
+
+		Router.route('qc_user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
+		    UserView.fetchAndInit(userId, {
+		        folderId: folderId,
+		        // upload: params.dialog === 'upload',
+		        // folderAccess: params.dialog === 'folderaccess',
+		        // folderCreate: params.dialog === 'foldercreate',
+		        // folderEdit: params.dialog === 'folderedit',
+		        // itemCreate: params.dialog === 'itemcreate'
+		        viewName: 'qcUserView',
+						el: '.g-ori-container'
+		    });
+		});
+
+		/*Router.route('ori_user/:id', 'user', function (userId, params) {
+		    UserView.fetchAndInit(userId, {
+		    		viewName: 'oriqcUsersView',
 						el: '.g-ori-container'
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // dialog: params.dialog
@@ -174,13 +217,14 @@ function bindRoutes() {
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
-		        viewName: 'oriUsersView',
+		        viewName: 'oriqcUsersView',
 						el: '.g-ori-container'
 		    });
-		});
+		});*/
 		Router.route('seg_user/:id', 'user', function (userId, params) {
+			
 		    UserView.fetchAndInit(userId, {
-		    		viewName: 'segUsersView',
+		    		viewName: 'segqcUsersView',
 		    		el: '.g-seg-container'
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // dialog: params.dialog
@@ -195,21 +239,44 @@ function bindRoutes() {
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
-		        viewName: 'segUsersView',
+		        viewName: 'segqcUsersView',
 						el: '.g-seg-container'
 		    });
 		});
 
 		
-
-
-		Router.route('ori_collection/:id', 'collectionAccess', function (cid, params) {
+		Router.route('qc_collection/:id', 'collectionAccess', function (cid, params) {
 				CollectionView.fetchAndInit(cid, {
 	        // access: params.dialog === 'access',
 	        // edit: params.dialog === 'edit',
 	        // folderCreate: params.dialog === 'foldercreate',
 	        // dialog: params.dialog
-	        viewName: 'oriCollectionsView',
+	        viewName: 'qcSSRProjectView',
+		    	el: '.g-ori-container'
+	    });
+		});
+		Router.route('qc_collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
+		    CollectionView.fetchAndInit(cid, {
+		        folderId: folderId,
+		        // upload: params.dialog === 'upload',
+		        // access: params.dialog === 'access',
+		        // edit: params.dialog === 'edit',
+		        // folderAccess: params.dialog === 'folderaccess',
+		        // folderCreate: params.dialog === 'foldercreate',
+		        // folderEdit: params.dialog === 'folderedit',
+		        // itemCreate: params.dialog === 'itemcreate'
+		        viewName: 'qcSSRProjectView',
+		    		el: '.g-ori-container'
+		    });
+		});
+
+		/*Router.route('ori_collection/:id', 'collectionAccess', function (cid, params) {
+				CollectionView.fetchAndInit(cid, {
+	        // access: params.dialog === 'access',
+	        // edit: params.dialog === 'edit',
+	        // folderCreate: params.dialog === 'foldercreate',
+	        // dialog: params.dialog
+	        viewName: 'oriqcSSRProjectView',
 		    	el: '.g-ori-container'
 	    });
 		});
@@ -223,7 +290,7 @@ function bindRoutes() {
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
-		        viewName: 'oriCollectionsView',
+		        viewName: 'oriqcSSRProjectView',
 		    		el: '.g-ori-container'
 		    });
 		});
@@ -234,7 +301,7 @@ function bindRoutes() {
 	        // edit: params.dialog === 'edit',
 	        // folderCreate: params.dialog === 'foldercreate',
 	        // dialog: params.dialog
-	        viewName: 'segCollectionsView',
+	        viewName: 'segqcSSRProjectView',
 		    	el: '.g-seg-container'
 	    });
 		});
@@ -248,11 +315,11 @@ function bindRoutes() {
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
-		        viewName: 'segCollectionsView',
+		        viewName: 'segqcSSRProjectView',
 		    		el: '.g-seg-container'
 		    });
-		});
-		
+		});*/
+
     return Router;
 }
 

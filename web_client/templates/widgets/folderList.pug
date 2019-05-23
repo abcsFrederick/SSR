@@ -1,0 +1,59 @@
+ul.g-folder-list
+  each folder in folders
+    li.g-folder-list-entry(public=(folder.get('public') ? 'true' : 'false'))
+      if checkboxes
+        input.g-list-checkbox(type="checkbox", g-folder-cid=folder.cid)
+      a.g-folder-list-link(g-folder-cid=folder.cid, href=`#folder/${folder.id}`, draggable="true", ondragstart=`event.dataTransfer.setData('folderId','${folder.id}');event.dataTransfer.setData('folderName','${folder.get('name')}')`)
+        i.icon-folder
+        = folder.get('name')
+        i.icon-right-dir
+      .g-folder-privacy
+        if folder.get('public')
+          i.icon-globe
+          | Public
+        else
+          i.icon-lock
+          | Private
+      .g-folder-link
+        if folder.get('segmentation')
+          if folder.get('segmentation').length
+            --console.log(folder.get('segmentation'))
+            if admin
+              i.icon-link.dropdown-toggle(data-toggle="dropdown", style='cursor:pointer')
+              .g-link-count #{folder.get('segmentation').length}
+              ul.dropdown-menu(aria-labelledby="linkMenu" style='top: auto; left: auto;')
+                for segmentationLink in folder.get('segmentation')
+                  i.icon-cancel(style='color:red', folder-id=segmentationLink._id)
+                  span.dropdown-item #{segmentationLink.name}
+            else
+              - var segmentation_hasAccess = []
+              //- check access for each segmentation with current user id and his groups
+              each segmentation in folder.get('segmentation')
+                --console.log(folder.get('segmentation'))
+                //- --console.log(currentUserGroups)
+                //- --console.log(currentUserId)
+                - var segmentation_userIds = segmentation.access.users.map(x=>x.id)
+                - var segmentation_allAccessIds = segmentation_userIds.concat(segmentation.access.groups)
+                
+                - var exist = (val)=>segmentation_allAccessIds.includes(val)
+                - var user_allAccessIds = currentUserGroups.concat(currentUserId)
+
+                // --console.log(user_allAccessIds)
+                // --console.log(segmentation_allAccessIds)
+                // --console.log(user_allAccessIds.some(exist))
+                if (user_allAccessIds.some(exist))
+                  -segmentation_hasAccess.push(segmentation)
+              // --console.log(segmentation_hasAccess)
+              if segmentation_hasAccess.length
+                i.icon-link.dropdown-toggle(data-toggle="dropdown", style='cursor:pointer')
+                .g-link-count #{segmentation_hasAccess.length}
+                ul.dropdown-menu(aria-labelledby="linkMenu" style='top: auto; left: auto;')
+                  for segmentationLink in segmentation_hasAccess.get('segmentation')
+                    i.icon-cancel(style='color:red', folder-id=segmentationLink._id)
+                    span.dropdown-item #{segmentationLink.name}
+
+  if hasMore
+    li.g-show-more
+      a.g-show-more-folders
+        i.icon-level-down
+        | Show more folders...

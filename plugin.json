@@ -2,15 +2,18 @@
     "name": "SSR",
     "description": "A SSR platform integrates HistomicsTK/RadiologyTK with Miport/Orthanc/Girder DB",
     "version": "0.1.0",
-    "dependencies": ["SAIP","NCI_Login_plugin","AMI_plugin","slicer_cli_web_SSR","jobs","d3_plugin"],
+    "dependencies": ["SAIP","NCIAuth","AMI_plugin","slicer_cli_web_SSR","jobs","d3_plugin"],
     "grunt": {
         "file": "Gruntfile.js"
     },
     "npm": {
         "dependencies": {
+            "popper.js":"^1.15.0",
+            "bootstrap":"^4.3.1",
             "bootstrap-submenu": "^2.0.4",
+            "bootstrap-hover-dropdown": "^2.2.1",
+            "bootstrap-select": "^1.13.9",
             "backbone.localstorage": "^2.0.2",
-            "backbone":"^1.3.3",
             "sass-loader":"^6.0.6",
             "html-loader":"^0.5.1",
             "datatables.net": "^1.10.16",

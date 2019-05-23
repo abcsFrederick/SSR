@@ -1,10 +1,16 @@
 .g-global-nav-main
-  ul.g-global-nav
+  ul.g-global-nav#taskNav.accordion
     each navItem, index in navItems
-      li.g-global-nav-li
-        a.g-nav-link(class=navItem, g-target=navItem, g-name=navItem, g-tag=tags[index])
-          i(class='icon-puzzle')
-          span= navItem
-          i.icon-left-dir
-          i.icon-right-dir
+      - let taskContentId = navItem + '_content'
+      .taskNavPanel.panel
+        li.g-global-nav-li(class=navItem, data-toggle="collapse", 
+            data-target='#'+taskContentId, 
+            data-parent="#taskNav")
+          a.g-nav-link(g-target=navItem, g-name=navItem, g-tag=tags[index])
+            i(class='icon-puzzle')
+            span= navItem
+            //- i.icon-left-dir
+            //- i.icon-right-dir
+        .analysesTag.collapse(id = taskContentId,g-name=navItem, g-tag=tags[index])
+
 .g-global-nav-fade

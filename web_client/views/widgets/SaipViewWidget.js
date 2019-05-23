@@ -4,8 +4,9 @@ import events from '../../events';
 import SAIPHierarchyBreadcrumbView from 'girder_plugins/SAIP/views/SAIPHierarchyBreadcrumbView';
 import SAIPProjectsView from 'girder_plugins/SAIP/views/SAIPProjects';
 import { restRequest } from 'girder/rest';
-
+import { fetchCurrentUser } from 'girder/auth';
 import SAIPTemplates from '../../templates/widgets/dsSAIP.pug';
+import UserModel from 'girder/models/UserModel';
 
 var SaipView = View.extend({
   events:{
@@ -15,7 +16,8 @@ var SaipView = View.extend({
     console.log(this.parentView)
     this.$el.html(SAIPTemplates());
     this.SAIPHierarchyBreadcrumbObjects=[{'object':{'name':'SAIP'},'type':'SAIP'}];
-    this.currentUser = settings.currentUser;
+    this.currentUser = settings.user;
+    console.log(this.currentUser)
     restRequest({
         url:'SAIP/'+this.currentUser.get('login')+'/projects' 
     }).then((col)=>{
@@ -66,6 +68,36 @@ var SaipView = View.extend({
   render(){
     return this;
   }
+}, {
+    /**
+     * Helper function for fetching the user and rendering the view with
+     * an arbitrary set of extra parameters.
+     */
+    fetchAndInit: function (params) {
+        console.log(params || {});
+
+        fetchCurrentUser().done(function(res){
+          let user = new UserModel(res);
+          if(params.workflow === 'ds'){
+              events.trigger('ds:navigateTo', SaipView, _.extend({
+                  user: user
+              }, params || {}));
+          }else{
+              events.trigger('qc:navigateTo', SaipView, _.extend({
+                  user: user
+              }, params || {}));
+          }
+        })
+        // var user = getCurrentUser();
+        // user.set({
+        //     _id: userId
+        // }).on('g:fetched', function () {
+            
+            
+        // }, this).on('g:error', function () {
+        //     events.trigger('qc:navigateTo', UsersView);
+        // }, this).fetch();
+    }
 });
 
 export default SaipView;

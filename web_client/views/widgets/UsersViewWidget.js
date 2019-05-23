@@ -54,7 +54,7 @@ var UsersViewWidget = View.extend({
     initialize: function (settings) {
         cancelRestRequests('fetch');
         this.collection = new UserCollection();
-
+        this.currentUser = settings.currentUser;
         const promiseArray = [];
         promiseArray.push(this.collection.fetch());
 
@@ -132,6 +132,7 @@ var UsersViewWidget = View.extend({
                 this.user = new UserModel(user);
                 this.widget = new HierarchyWidget({
                     el: $('#selectedFile'),
+                    currentUser: this.currentUser,
                     parentView: this,
                     parentModel:this.user,
                     checkboxes: false,
@@ -162,6 +163,7 @@ var UsersViewWidget = View.extend({
         }).then((user)=>{
             this.user = new UserModel(user);
             this.widget = new HierarchyWidget({
+                currentUser: this.currentUser,
                 el: $('#selectedFile'),
                 parentView: this,
                 parentModel:this.user,

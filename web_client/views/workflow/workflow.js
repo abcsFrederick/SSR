@@ -15,6 +15,8 @@ import eventStream from 'girder/utilities/EventStream';
 import Visualization from '../visualization/visualization';
 
 import '../../stylesheets/workflow/workflow.styl';
+// import 'bootstrap';
+// import 'bootstrap/dist/css/bootstrap.css';
 var workflow = View.extend({
 	events:{
 		'click .analysisTask': '_setAnalysisTask',
@@ -107,7 +109,7 @@ var workflow = View.extend({
 				diffTags=[...diffTags,..._.keys(analyses[value])]
 			})
 			diffTags=diffTags.unique();
-            window.analyses = analyses ;
+            // window.analyses = analyses ;
             this.$('.analysesNames').html(workflowNavTemplate({
                 navItems: Object.keys(analyses),
                 tags: diffTags
@@ -120,10 +122,11 @@ var workflow = View.extend({
         },this));
 
         this.controlPanel = setting.controlPanel;
-        console.log('workflow initialize')
+        // console.log('workflow initialize')
         // this.listenTo(events, 'query:workSpaceFolder', this.workSpaceFolderSetInputs);
   //       this.listenTo(events, 'query:PreviewFolder', this.PreviewFileSetInputs);
 		// this.listenTo(events, 'query:PreviewFolderAndSEG', this.PreviewFileAndSEGSetInputs);
+        this.listenTo(events, 'query:editSegmentationFolderId', this.editSegmentationFolderId);
 		this.listenTo(events,'query:JobProgress',this.JobProgressRender);
         this.listenTo(events, 'query:analysisTask', this.selectAnalysisTask);
         this.listenTo(events, 'query:setupOutputFolder', this.setupOutputFolder);
@@ -151,25 +154,26 @@ var workflow = View.extend({
         this.deactivateAll();
         let link = $(e.currentTarget);
         let currentTargetClass = link.text();
-        console.log('$(e.target)')
-        if($(e.target).hasClass('icon-left-dir')){
-            this.$('.' + currentTargetClass + ' > .icon-right-dir').show();
-            this.$('.' + currentTargetClass + ' > .icon-left-dir').hide();
-            $('.analyses').css('display','none');
-            link.parent().addClass('g-active');
-        }
-        else if($(e.target).hasClass('icon-right-dir')){
-            this.$('.' + currentTargetClass + ' > .icon-left-dir').show();
-            this.$('.' + currentTargetClass + ' > .icon-right-dir').hide();
-            $('.analyses').css('display','inline-block');
-            $('.analyses').css('height','inherit');
-            link.parent().addClass('g-active');
-        }
-        else{
+        // console.log('$(e.target)')
+        // if($(e.target).hasClass('icon-left-dir')){
+        //     this.$('.' + currentTargetClass + ' > .icon-right-dir').show();
+        //     this.$('.' + currentTargetClass + ' > .icon-left-dir').hide();
+        //     $('.analyses').css('display','none');
+        //     link.parent().addClass('g-active');
+        // }
+        // else if($(e.target).hasClass('icon-right-dir')){
+        //     this.$('.' + currentTargetClass + ' > .icon-left-dir').show();
+        //     this.$('.' + currentTargetClass + ' > .icon-right-dir').hide();
+        //     $('.analyses').css('display','inline-block');
+        //     $('.analyses').css('height','inherit');
+        //     link.parent().addClass('g-active');
+        // }
+        // else{
             let currentAnalysis = $(e.currentTarget).attr('g-name');
             let analysis = this.analyses[currentAnalysis];
             let currentAnalysisTag = $(e.currentTarget).attr('g-tag');
-            this.$('.analyses').html(analysesHeadersTemplate({
+            
+            this.$('.analysesTag[g-name='+currentAnalysis+']').html(analysesHeadersTemplate({
                 analysis:analysis,
                 tag:currentAnalysisTag
             }));
@@ -182,13 +186,16 @@ var workflow = View.extend({
             }else{
                 $('.analyses').css('display','none');
             }
-        }
+        // }
     },
     _setAnalysisTask(evt) {
         evt.preventDefault();
         let link = $(evt.currentTarget);
         var target = $(evt.currentTarget).data();
-        link.parent().css('background-color','rgba(234, 235, 234, 0.4);');
+        console.log(link.parent())
+        // link.parent().addClass('active');
+
+        // link.parent().css('background-color','rgba(234, 235, 234, 0.4);');
         router.setQuery('analysisTask', target.api, {trigger: true});
         this.controlPanel.setElement('.analysisControl').render();
     },
@@ -202,12 +209,12 @@ var workflow = View.extend({
                 diffTags=[...diffTags,..._.keys(analyses[value])]
             })
             diffTags=diffTags.unique();
-            window.analyses = analyses ;
+            // window.analyses = analyses ;
             // this.$el.html(worflowTemplate({
             //     navItems: Object.keys(analyses),
             //     tags: diffTags
             // }));
-            console.log('selectAnalysisTask');
+            // console.log('selectAnalysisTask');
             this.deactivateAll();
             // console.log('selectAnalysisTask');
             // console.log(evt);
@@ -216,16 +223,19 @@ var workflow = View.extend({
             let currentAnalysis = analysis_currentAnalysisTag.split('_')[0];
             let analysis = this.analyses[currentAnalysis];
             let currentAnalysisTag = analysis_currentAnalysisTag.split('_')[1];
-            this.$('.analyses').html(analysesHeadersTemplate({
+            this.$('.analysesTag[g-name='+currentAnalysis+']').html(analysesHeadersTemplate({
                 analysis:analysis,
                 tag:currentAnalysisTag
             }));
-            // console.log(task);
-            $('.'+task).css('background-color','rgba(234, 235, 234, 0.4)');
-            this.$('.' + currentAnalysis + ' > .icon-right-dir').hide();
-            this.$('.' + currentAnalysis + ' > .icon-left-dir').show();
+            $('.analysesTag[g-name=' + currentAnalysis + ']').collapse('show');
+            $('.s-task-list').removeClass('active');
+
+            $('.'+task).addClass('active');
+            // $('.'+task).css('background-color','rgba(234, 235, 234, 0.4)');
+            // this.$('.' + currentAnalysis + ' > .icon-right-dir').hide();
+            // this.$('.' + currentAnalysis + ' > .icon-left-dir').show();
             $('.' + currentAnalysis).parent().addClass('g-active');
-            console.log($('.analysisControl'));
+            // console.log($('.analysisControl'));
             this.controlPanel.setElement('.analysisControl').render();
             // this.controlPanel.setElement('.analysisControl').render();
             
@@ -242,8 +252,8 @@ var workflow = View.extend({
             let randomName = Date.now();
             let folder = new FolderModel(e);
             _.each(this.controlPanel.models(), (model) => {
-                console.log(model);
-                console.log(folder);
+                // console.log(model);
+                // console.log(folder);
                 if (model.get('type') === 'directory') {
                     if(model.get('flag')==""||model.get('flag')=="Original"){
                         model.set('value', folder, {trigger: true}); 
@@ -366,10 +376,15 @@ var workflow = View.extend({
             })
         },this));
     },
+
+    editSegmentationFolderId(editSegmentationFolderId){
+
+        this.defaultParentFolder = editSegmentationFolderId;
+    },
     deactivateAll(){
-        console.log(this.$('.icon-left-dir'))
-        this.$('.icon-left-dir').hide();
-        this.$('.icon-right-dir').hide();
+        // console.log(this.$('.icon-left-dir'))
+        // this.$('.icon-left-dir').hide();
+        // this.$('.icon-right-dir').hide();
         this.$('.g-global-nav-li').removeClass('g-active');
     }
 });

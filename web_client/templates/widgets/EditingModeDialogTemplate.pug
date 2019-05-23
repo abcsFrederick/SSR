@@ -1,0 +1,56 @@
+.modal-dialog
+  .modal-content
+    #g-editingMode-form.modal-form(role="form")
+      .modal-header
+        button.close(data-dismiss="modal", aria-hidden="true", type="button") &times;
+        h4.modal-title
+          | Editing Control
+      .modal-body
+        .form-group
+          .g-permissions-editor
+            .g-ac-list-title #[i.icon-key-1]  Choose a segmentation you want to edit
+            .g-ac-list(style='height: 200px; padding-top: 20px;')
+              .col-md-6.g-ac-list-piece
+                label Segmentations:
+                select#selectSegmentation.selectpicker(required)
+                  option 
+                  optgroup(label="Release")
+                    each seg in segmentations
+                      if seg['baseParentType'] == 'collection'
+                        option(id=seg['_id']) #{seg.name}
+                  optgroup(label="Yours")
+                    each seg in segmentations
+                      if seg['baseParentType'] == 'user'
+                        option(id=seg['_id']) #{seg.name}
+              //- .col-md-6
+              //-   label Your own:
+              //-   select#selectExistEditingSegmentation
+              //-     option 
+              //-     each seg in segmentations
+              //-       if seg['baseParentType'] == 'user'
+              //-         option(id=seg['_id']) #{seg.name}
+
+              .g-ac-list-piece.col-md-6
+                label Cursor Size:
+
+                input#cursorSize(data-slider-id='ex1Slider',type="text", data-slider-min="0", data-slider-max="50", data-slider-step="1", data-slider-value="14")
+
+              .g-ac-list-piece.saving-options-container.col-md-6(style='display:none')
+                label New label name:
+                
+                input#EditingName(placeholder='Give a name', type='text')
+              .g-ac-list-piece.col-md-6
+                label Color:
+
+                input#labelColor(type="text" class="form-control" value="rgb(255, 128, 0)")
+
+        .form-group
+          label.control-label Description (optional)
+          .g-description-editor-container
+        .g-validation-failed-message
+
+      .modal-footer
+        a.btn.btn-small.btn-default(data-dismiss="modal") Cancel
+        button#setEditMode.g-save-collection.btn.btn-small.btn-primary(type="submit")
+          i.icon-edit
+          | Start

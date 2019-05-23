@@ -158,6 +158,7 @@ var UserView = View.extend({
      */
     fetchAndInit: function (userId, params) {
         console.log(params || {});
+
         var user = new UserModel();
         user.set({
             _id: userId

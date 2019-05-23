@@ -1,3 +1,4 @@
+
 .col-md-2.g-ds-nav-container
 	.g-global-nav-main
 		//- .sidebar.sidebar-header 
@@ -5,7 +6,7 @@
 
 		ul.list.components.g-global-nav
 			li.g-global-nav-li
-				a.g-nav-link.ds-SAIP(g-name='dsSAIP' g-target='dsSAIP') 
+				a.g-nav-link.ds-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
 					i.icon-download-cloud
 					span SAIP
 					i.icon-left-dir
@@ -13,25 +14,30 @@
 				//- ul.collapse.list-unstyled#projects
 				//- 	.g-hierarchy-breadcrumb-bar
 				//- 	.g-folder-list-container
-			li.g-global-nav-li
-				a.g-nav-link.ds-Filesystem(g-name='dsFilesystem' g-target='dsFilesystem') 
-					i.icon-file-archive
-					span Filesystem
-					i.icon-left-dir
-					i.icon-right-dir
+
+			if SSR_Project.id
+				li.g-global-nav-li
+					a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id g-name='dsSSRProject' g-target='dsSSRProject') 
+						i.icon-file-archive
+						span #{SSR_Project.get('name')}
+						i.icon-left-dir
+						i.icon-right-dir
 				//- ul.collapse.list-unstyled#filesystem
-			li.g-global-nav-li
-				a.g-nav-link.ds-Girder(g-name='dsGirder' g-target='dsGirder') 
-					i.icon-edit
-					span Girder
-					i.icon-left-dir
-					i.icon-right-dir
+
+			if user.id
+				li.g-global-nav-li
+					a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers') 
+						i.icon-edit
+						span #{user.name()}
+						i.icon-left-dir
+						i.icon-right-dir
 				//- ul.collapse.list-unstyled#girder
 				//- 	.ds-Girder-Container
 
-		ul.previewButton(style='list-style: none;')
-			li
-				a#preview Preview
+		ul.viewButton(style='list-style: none;')
+			button.btn.btn-success#startView
+				i.icon-eye
+				a View
 				//- a#goWorkFlow WorkFlow
 				//- a#updateFile updateFile
 
@@ -42,13 +48,13 @@
 .selectionDom.col-md-4
 .visualizer.col-md-10
 
-#PreviewSelection.modal
-	.modal-content(style='width:40%')
-		.modal-header
-			span.close &times;
-			h2 Preview Option
-		.modal-body
+//- #PreviewSelection.modal
+//- 	.modal-content(style='width:40%')
+//- 		.modal-header
+//- 			span.close &times;
+//- 			h2 Preview Option
+//- 		.modal-body
 			
-		.modal-footer
-			button.cancel.btn.btn-default Cancel
-			button#processingPreview.btn.btn-success GO
+//- 		.modal-footer
+//- 			button.cancel.btn.btn-default Cancel
+//- 			button#processingPreview.btn.btn-success GO

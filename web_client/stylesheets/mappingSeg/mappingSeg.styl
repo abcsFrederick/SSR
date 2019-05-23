@@ -18,5 +18,155 @@
   max-height 50vh
   overflow auto
   background rgba(255, 255, 255, 0.9)
+  min-height 90vh
   max-height 90vh
+  overflow auto
+  padding 0px
+
+.g-seg-container
+  max-height 50vh
+  overflow auto
+  background rgba(255, 255, 255, 0.9)
+  min-height 90vh
+  max-height 90vh
+  overflow auto
+  padding 0px
+
+
+.prepareLinkOri
+  display block
+  line-height 2.2
+  font-size 17px
+  color #4a4a4a
+  padding-left 12px
+
+.prepareLinkSeg
+  display block
+  line-height 2.2
+  font-size 17px
+  color #4a4a4a
+  padding-left 12px
+
+.g-seg-nav-container
+  .g-global-nav-main
+    >ul.g-global-nav
+      >li.g-active
+        box-shadow 1px 1px 3px rgba(0,0,0,.05)
+        border-left 0px
+        border-right 1px solid #e0e0e0
+@media (min-width: 721px)
+  ul.g-global-nav
+    >li:hover:not(.g-active)
+      .prepareLinkOri:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        right -1px
+        background-color lightgreen
+
+@media (min-width: 721px)
+  ul.g-global-nav
+    >li:hover:not(.g-active)
+      .g-nav-link:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        left -1px
+        background-color #ffcc00
+      .prepareLinkSeg:after
+        content ""
+        position absolute
+        width 4px
+        top -1px
+        bottom -1px
+        left -1px
+        background-color lightgreen
+.g-nav-link-tile
+    display block
+    line-height 2.2
+    font-size 17px
+    color #4a4a4a
+    padding-left 12px
+
+.actions
+    display grid
+    justify-content center
+.link
+  display none
+  width 100%
+
+.beforeLink
+  display none
+  width 100%
+  color grey
+  position absolute
+  top 10vh
+  height 70vh
+.afterLink
+  top 10vh
+  width 100%
+  position absolute
+  color green
+  display none
+  justify-content center
+.fa-arrow-before
+  animation move-in-steps 3s infinite
+  position relative
+  font-size 40px
+
+.fa-arrow-after
+  animation linked 2s 
+  position relative
+  font-size 40px
+
+@keyframes move-in-steps {
+  0% {
+    left: 0%;
+  }
+  100% {
+    left: 75%;
+  }
+}
+@keyframes linked {
+  0% {
+    font-size: 40px;
+  }
+  25% {
+    font-size: 30px;
+  }
+  50% {
+    font-size: 40px;
+  }
+  75% {
+    font-size: 30px;
+  }
+  100% {
+    font-size: 40px;
+  }
+}
+
+
+.g-drop-zone.original,.g-drop-zone.segmentation
+  padding 11px 22px 11px 17px
+  font-size 16px
+  font-weight bold
+  color #fff
+  background-color #5cb85c
+  border 1px solid #595
+  border-radius 6px
+  display inline-block
+  margin-top 10px
+  width 100%
+
+.panel-heading.collapsed
+  border-top 3px solid #f5f5f5
+
+.dropFolderZone
+  min-height: 10vh;
+.prepareLinkZone
+  max-height 80vh
   overflow auto

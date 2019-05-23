@@ -1,0 +1,11 @@
+# Todo List 
+
+#Folder create which not inherit access policies for especially collection
+#Post /SSR/folder
+
+
+#Folder list with more informations (linked segmentations information)
+#Get /SSR/folder
+
+#Item list with more informations (linked segmentations information)
+#Get /SSR/item

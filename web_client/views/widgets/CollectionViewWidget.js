@@ -107,7 +107,7 @@ var CollectionView = View.extend({
                 itemCreate: this.itemCreate,
                 parentView: this,
                 baseRoute: this.baseRoute,
-                showActions: false,
+                showActions: true,
                 showItems: true,
                 showMetadata: false
             }).on('g:setCurrentModel', () => {
@@ -185,6 +185,7 @@ var CollectionView = View.extend({
      * an arbitrary set of extra parameters.
      */
     fetchAndInit: function (cid, params) {
+        // console.log('188')
         var collection = new CollectionModel();
         collection.set({ _id: cid }).on('g:fetched', function () {
             if(params.workflow === 'ds'){
