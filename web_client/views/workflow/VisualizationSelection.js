@@ -13,13 +13,13 @@ var VisualizationSelection = View.extend({
 		this.$el.html(VisualizationSelectionTemplate())
 		this.jobId= setting.jobId
 		restRequest({
-            url: 'SSR/',
-            data:{jobId:this.jobId}
-        }).then((e) => {
-        	this.ext = e[0].task.outputs.exts[0];
-        	this.inputs=e[0].task.inputs;
-        	this.outputs = e[0].task.outputs;
-        });
+        url: 'SSR/',
+        data:{jobId:this.jobId}
+    }).then((e) => {
+    	this.ext = e[0].task.outputs.exts[0];
+    	this.inputs=e[0].task.inputs;
+    	this.outputs = e[0].task.outputs;
+    });
         //For final Visualizer
         //this.listenTo(events, 'query:Visualizer', this.Visualizer);
         //For Visualizer panel in workflow

@@ -58,10 +58,14 @@ var FolderListWidget = View.extend({
         }).render();
 
         this.collection = new FolderCollection();
+        console.log('this.collection');
+        console.log(this.collection);
         this.collection.append = true; // Append, don't replace pages
         this.collection.filterFunc = settings.folderFilter;
 
-
+        if(settings.parentType == 'SSR/folder') 
+        {settings.parentType = 'folder';}
+    
         this.collection.on('g:changed', function () {
             this.render();
             this.trigger('g:changed');

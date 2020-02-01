@@ -1,56 +1,58 @@
 #userFolder
-  .col-md-2.g-ori-nav-container
+  .g-qc-nav-container
     .g-global-nav-main
       //- .sidebar.sidebar-header 
       //-   h4 Data Source
 
-      ul.list.components.g-global-nav
-        //- li.g-global-nav-li
-        //-   a.g-nav-link-tile.OriginalTile
-        //-     span Original
-        li.g-global-nav-li
-          a.g-nav-link.qc-SAIP(g-name='qcSAIPProject' g-target='qcSAIPProject') 
-            i.icon-download-cloud
-            span SAIP
-            i.icon-left-dir
-            i.icon-right-dir
+      ul.list.components.g-global-nav#mappingNav
+        .mappingNavPanel.panel
+          li.g-global-nav-li(data-toggle="collapse", 
+              data-target='#mappingSAIPArch', 
+              data-parent="#mappingNav")
+            a.g-nav-link.qc-SAIP(g-name='qcSAIPProject' g-target='qcSAIPProject') 
+              i.icon-download-cloud
+              span SAIP
+              //- i.icon-left-dir
+              //- i.icon-right-dir
+          .mappingArch#mappingSAIPArch.collapse
+            //- p SAIP
           //- ul.collapse.list-unstyled#projects
           //-   .g-hierarchy-breadcrumb-bar
           //-   .g-folder-list-container
 
         if SSR_Project.id
-          li.g-global-nav-li
-            a.g-nav-link.qc-Filesystem(g-id=SSR_Project.id g-name='qcSSRProject' g-target='qcSSRProject') 
-              i.icon-file-archive
-              span #{SSR_Project.get('name')}
-              i.icon-left-dir
-              i.icon-right-dir
+          .mappingNavPanel.panel
+            li.g-global-nav-li(data-toggle="collapse", 
+              data-target='#mappingSSRArch', 
+              data-parent="#mappingNav")
+              a.g-nav-link.qc-Filesystem(g-id=SSR_Project.id g-name='qcSSRProject' g-target='qcSSRProject') 
+                i.icon-file-archive
+                span #{SSR_Project.get('name')}
+                //- i.icon-left-dir
+                //- i.icon-right-dir
+            .mappingArch#mappingSSRArch.collapse
+              //- p SSR
           //- ul.collapse.list-unstyled#filesystem
 
         if user.id
-          li.g-global-nav-li
-            a.g-nav-link.qc-Girder(g-id=user.id g-name='qcUser' g-target='qcUser') 
-              i.icon-edit
-              span #{user.name()}
-              i.icon-left-dir
-              i.icon-right-dir
-
-        //- li.g-global-nav-li
-        //-   #headingTwo2.card-header(role="tab")
-        //-     a.collapsed( data-toggle="collapse" data-parent="#accordionEx" href="#collapseTwo2"
-        //- aria-expanded="false" aria-controls="collapseTwo2")
-        //-       h5 Collapsible Group Item #2
-
-        //-   #collapseTwo2.collapse(role="tabpanel" aria-labelledby="headingTwo2" data-parent="#accordionEx")
-        //-     div sfafeafe
+          .mappingNavPanel.panel
+            li.g-global-nav-li(data-toggle="collapse", 
+              data-target='#mappingUSERArch', 
+              data-parent="#mappingNav")
+              a.g-nav-link.qc-Girder(g-id=user.id g-name='qcUsers' g-target='qcUsers') 
+                i.icon-edit
+                span #{user.name()}
+                //- i.icon-left-dir
+                //- i.icon-right-dir
+            .mappingArch#mappingUSERArch.collapse
 
       ul.viewButton(style='list-style: none;')
         button.btn.btn-success#startLink
           i.icon-link
           a Link
-  .col-md-3.g-ori-container.g-ori-seg-container
-
-  .col-md-7.linkZone
+    .s-nav-siderBar
+      span.hideBar
+  .linkZone
     .row.dropFolderZone.collapse.in
       .col-md-6
         .g-drop-zone.original
@@ -87,7 +89,7 @@
   //-         a.g-nav-link-tile.SegmentationTile
   //-           span Segmentation
   //-       //- li.g-global-nav-li
-  //-       //-   a.g-nav-link.qc-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
+  //-       //-   a.g-nav-link.qc-SAIP(g-name='qcSAIPProject' g-target='qcSAIPProject') 
   //-       //-     i.icon-download-cloud
   //-       //-     span SAIP
   //-       //-     i.icon-left-dir
@@ -117,5 +119,5 @@
 
   //- .col-md-5.g-ori-selections
   //- .col-md-2.g-selections
-    //- button.linkOriAndSeg Go
+    //- button.linkOriAnqceg Go
   //- .col-md-5.g-seg-selections

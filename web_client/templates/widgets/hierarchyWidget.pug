@@ -14,7 +14,7 @@
           ul.g-checked-actions-menu.dropdown-menu(role="menu")
 
       .g-folder-header-buttons
-        if (type === 'folder')
+        if (type === 'folder' || type === 'SSR/folder')
           button.g-folder-info-button.btn.btn-sm.btn-info(title="Show folder info")
             i.icon-info
           if (level >= AccessType.WRITE)
@@ -36,7 +36,7 @@
               i.icon-sitemap
             else if type === 'user'
               i.icon-user
-            else if type === 'folder'
+            else if type === 'folder' || type === 'SSR/folder'
               i.icon-folder-open
             i.icon-down-dir
           ul.g-folder-actions-menu.dropdown-menu.pull-right(role="menu")
@@ -45,10 +45,10 @@
                 i.icon-sitemap
               else if type === 'user'
                 i.icon-user
-              else if type === 'folder'
+              else if type === 'folder' || type === 'SSR/folder'
                 i.icon-folder-open
               |  #{model.name()}
-            if type === 'folder' || type === 'collection'
+            if type === 'folder' || type === 'SSR/folder' || type === 'collection'
               li(role="presentation")
                 a.g-download-folder(role="menuitem", href=model.downloadUrl())
                   i.icon-download
@@ -64,8 +64,8 @@
                   a.g-create-subfolder(role="menuitem")
                     i.icon-folder
                     | Create folder here
-              if type === 'folder' || type === 'collection'
-                if type === 'folder'
+              if type === 'folder' || type === 'SSR/folder' || type === 'collection'
+                if type === 'folder' || type === 'SSR/folder'
                   li(role="presentation")
                     a.g-create-item(role="menuitem")
                       i.icon-doc
@@ -74,7 +74,7 @@
                   a.g-edit-folder(role="menuitem")
                     i.icon-edit
                     | Edit #{type}
-            if level >= AccessType.ADMIN && (type === 'folder' || type === 'collection')
+            if level >= AccessType.ADMIN && (type === 'folder' || type === 'SSR/folder' || type === 'collection')
               li.divider(role="presentation")
               li(role="presentation")
                 a.g-delete-folder(role="menuitem")

@@ -11,6 +11,15 @@
   max-height 50vh
   overflow auto
   */
+  
+.g-qc-nav-container
+    width 40vw
+    height calc(100vh - 52px)
+    display inline-block
+    transition 1s
+    position absolute
+    left 0vw
+    margin-left 0vw
 .g-ori-selection-container,.g-seg-selection-container
   padding 0px
   text-align center
@@ -166,7 +175,59 @@
   border-top 3px solid #f5f5f5
 
 .dropFolderZone
-  min-height: 10vh;
+  min-height 10vh
+  margin-left 0px
+  margin-right 0px
 .prepareLinkZone
   max-height 80vh
   overflow auto
+  margin-left 0px
+  margin-right 0px
+.linkZone
+  width 60vw
+  float right
+  height calc(100vh - 52px)
+  transition 1s
+.s-nav-siderBar
+    height calc(100vh - 52px)
+    width 20px
+    float right
+    cursor pointer
+.hideBar    
+    font-weight 600
+    text-align center
+    position relative
+    top 50%
+    left: 30%;
+    &:before
+        font-family fontello
+        content "\e90f"
+.hideBar.collapsein
+    font-weight 600
+    text-align center
+    position relative
+    top 50%
+    left: 30%;
+    &:before
+        font-family fontello
+        content "\e910"
+.mappingNavPanel.panel
+    margin-bottom 0px 
+    background-color rgba(0,0,0,0)
+    border 0px solid
+    border-radius 0px
+    box-shadow 0 1px 1px rgba(0,0,0,.05) 
+    list-style none      
+.mappingNavPanel.panel:hover
+    background-color #f6f6f6
+    transition all 0.2s
+       
+.mappingArch
+    margin-left 30px
+    margin-right 10px
+    overflow auto
+    max-height 300px
+    
+.g-global-nav-li[aria-expanded="true"]
+    font-weight bolder
+    font-style italic

@@ -23,6 +23,7 @@ import { splitRoute, parseQueryString } from 'girder/misc';
 
 var mappingSeg = View.extend({
   events: {
+    'click .s-nav-siderBar':'_collaspeSideBar',
     'click #startLink':'linkOriAndSeg',
     'dragenter .g-drop-zone': function (e) {
         e.stopPropagation();
@@ -55,8 +56,8 @@ var mappingSeg = View.extend({
         e.preventDefault();
     },
     'drop .g-drop-zone': 'folderDropped',
-    'click .g-ori-nav-container .qc-Girder': function (event) {
-      console.log('28 click');
+    'click .qc-Girder': function (event) {
+   
       let link = $(event.currentTarget);
       let curRoute = Backbone.history.fragment,
           routeParts = splitRoute(curRoute),
@@ -66,7 +67,7 @@ var mappingSeg = View.extend({
               unparsedQueryString = '?' + unparsedQueryString;
           }
 
-      router.navigate('qc_user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
+      router.navigate('qc/user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
     },
     // 'click .g-seg-nav-container .qc-Girder': function (event) {
     //   console.log('40 click');
@@ -82,7 +83,7 @@ var mappingSeg = View.extend({
     //   router.navigate('seg_user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
 
     // },
-    'click .g-ori-nav-container .qc-Filesystem': function (event) {
+    'click .qc-Filesystem': function (event) {
 
       let link = $(event.currentTarget);
       let curRoute = Backbone.history.fragment,
@@ -93,7 +94,7 @@ var mappingSeg = View.extend({
               unparsedQueryString = '?' + unparsedQueryString;
           }
 
-      router.navigate('qc_collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
+      router.navigate('qc/collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
     },
     // 'click .g-seg-nav-container .qc-Filesystem': function (event) {
 
@@ -108,7 +109,7 @@ var mappingSeg = View.extend({
 
     //   router.navigate('seg_collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
     // },
-    'click .g-ori-nav-container .qc-SAIP': function (event) {
+    'click .qc-SAIP': function (event) {
 
       let link = $(event.currentTarget);
       let curRoute = Backbone.history.fragment,
@@ -119,7 +120,7 @@ var mappingSeg = View.extend({
               unparsedQueryString = '?' + unparsedQueryString;
           }
 
-      router.navigate('qc_saip' + unparsedQueryString, {trigger: true});
+      router.navigate('qc/saip' + unparsedQueryString, {trigger: true});
     },
     /*'click .checkLink':function (event) {
       console.log('checkLink')
@@ -128,7 +129,7 @@ var mappingSeg = View.extend({
     }*/
   },
   initialize(setting){
-    console.log(this)
+    // console.log(this)
     this.currentUser = setting.currentUser;
     this.SSR_ProjectCollection = setting.SSR_ProjectCollection;
 
@@ -217,13 +218,14 @@ var mappingSeg = View.extend({
     //       events.trigger('prepareLinkSeg');
     //   }
     // },this.globalNavView_seg.events)
-
+    this.listenTo(this.SSR_ProjectCollection, "change", this._addSSRProjectNav);
     events.on('qc:navigateTo', this.navigateTo, this);
     // this.globalNavView_ori.setElement(this.$('.g-ori-nav-container')).render();
     // this.globalNavView_seg.setElement(this.$('.g-seg-nav-container')).render();
     /*this.listenTo(events,'prepareLinkOri',this.prepareLinkOri);
     this.listenTo(events,'prepareLinkSeg',this.prepareLinkSeg);*/
 
+    this.listenTo(this.SSR_ProjectCollection, "change", this.renderSSR_Project);
     this.listenTo(events,'qc:selectSAIP',this.selectSAIP);
     this.listenTo(events,'qc:selectCollections',this.selectCollections);
     this.listenTo(events,'qc:selectUsers',this.selectUsers);
@@ -234,7 +236,7 @@ var mappingSeg = View.extend({
     // window.mappingSeg = this;
   },
   linkOriAndSeg: function(){
-    console.log(this)
+
     let ori_list = [];
     let seg_list = [];
     $( "#original_sortable li" ).each(function(index) {
@@ -245,6 +247,19 @@ var mappingSeg = View.extend({
       seg_list.push($($('#segmentation_sortable li')[index]).attr('tag'))
     });
 
+    try {
+        if(!ori_list.length) throw {'message':'Please drag and drop an original folder.'};
+        if(!seg_list.length) throw {'message':'Please drag and drop an segmentation folder.'};
+        if(ori_list.length !== seg_list.length) throw {'message':'Original and segmentation folders contain different number of images'};
+    } catch (err) {
+        events.trigger('g:alert', {
+            type: 'warning',
+            text: err.message,
+            icon: 'info',
+            timeout: 5000
+        });
+        return;
+    }
     _.each(seg_list,function(id,index){
       // console.log(id);
       restRequest({
@@ -254,12 +269,12 @@ var mappingSeg = View.extend({
         $('#segmentation_sortable [tag=' + id + ']').css('background-position','left bottom');
         // $('.beforeLink').css('display','none');
         // $('.afterLink').css('display','inline-grid');
-      })
+      });
     })
   },
   navigateTo: function (view, settings, opts) {
         // this.deactivateAll(settings.viewName);
-        console.log('229 navigatevTo')
+
         settings = settings || {};
         opts = opts || {};
 
@@ -279,7 +294,7 @@ var mappingSeg = View.extend({
             settings = _.extend(settings, {
                 parentView: this,
                 brandName: this.brandName,
-                baseRoute:'qc_user'
+                baseRoute:'qc/user'
             });
 
             /* We let the view be created in this way even though it is
@@ -290,6 +305,9 @@ var mappingSeg = View.extend({
             if (opts.renderNow) {
                 this.qcUserView.render();
             }
+            $('#mappingSAIPArch').collapse('hide');
+            $('#mappingSSRArch').collapse('hide');
+            $('#mappingUSERArch').collapse('show');
           }
           if(settings.viewName=='qcSSRProjectView')
           {
@@ -305,7 +323,7 @@ var mappingSeg = View.extend({
             settings = _.extend(settings, {
                 parentView: this,
                 brandName: this.brandName,
-                baseRoute:'qc_collection'
+                baseRoute:'qc/collection'
             });
 
             /* We let the view be created in this way even though it is
@@ -316,112 +334,11 @@ var mappingSeg = View.extend({
             if (opts.renderNow) {
                 this.qcCollectionView.render();
             }
+            $('#mappingSAIPArch').collapse('hide');
+            $('#mappingSSRArch').collapse('show');
+            $('#mappingUSERArch').collapse('hide');
           }
-          // if(settings.viewName=='oriqcUsersView')
-          // {
-          //   if (this.oriUserView) {
-          //       this.oriUserView.destroy();
-          //   }
-          //   if (this.oriCollectionView) {
-          //       this.oriCollectionView.destroy();
-          //       this.oriCollectionView = null;
-          //   }
-          //   this.oriFromFilesystem = true;
-          //   this.oriFromSaipArchive = false;
-          //   settings = _.extend(settings, {
-          //       parentView: this,
-          //       brandName: this.brandName,
-          //       baseRoute:'ori_user'
-          //   });
-
-          //   /* We let the view be created in this way even though it is
-          //    * normally against convention.
-          //    */
-          //   this.oriUserView = new view(settings); // eslint-disable-line new-cap
-
-          //   if (opts.renderNow) {
-          //       this.oriUserView.render();
-          //   }
-          // }
-          // if(settings.viewName=='segqcUsersView')
-          // { 
-          //   this.segFromFilesystem = true;
-          //   this.segFromSaipArchive = false;
-          //   if (this.segUserView) {
-          //       this.segUserView.destroy();
-          //   }
-          //   if (this.segCollectionView) {
-          //       this.segCollectionView.destroy();
-          //       this.segCollectionView = null;
-          //   }
-          //   settings = _.extend(settings, {
-          //       parentView: this,
-          //       brandName: this.brandName,
-          //       baseRoute:'seg_user'
-          //   });
-
-          //   /* We let the view be created in this way even though it is
-          //    * normally against convention.
-          //    */
-          //   this.segUserView = new view(settings); // eslint-disable-line new-cap
-
-          //   if (opts.renderNow) {
-          //       this.segUserView.render();
-          //   }
-          // } 
-          // if(settings.viewName=='oriqcSSRProjectView')
-          // {
-          //   this.oriFromFilesystem = true;
-          //   this.oriFromSaipArchive = false;
-          //   if (this.oriCollectionView) {
-          //       this.oriCollectionView.destroy();
-          //   }
-          //   if (this.oriUserView) {
-          //       this.oriUserView.destroy();
-          //       this.oriUserView = null;
-          //   }
-          //   settings = _.extend(settings, {
-          //       parentView: this,
-          //       brandName: this.brandName,
-          //       baseRoute:'ori_collection'
-          //   });
-
-          //   /* We let the view be created in this way even though it is
-          //    * normally against convention.
-          //    */
-          //   this.oriCollectionView = new view(settings); // eslint-disable-line new-cap
-
-          //   if (opts.renderNow) {
-          //       this.oriCollectionView.render();
-          //   }
-          // }
-          // if(settings.viewName=='segqcSSRProjectView')
-          // {
-          //   this.segFromFilesystem = true;
-          //   this.segFromSaipArchive = false;
-          //   if (this.segCollectionView) {
-          //       this.segCollectionView.destroy();
-          //   }
-          //   if (this.segUserView) {
-          //       this.segUserView.destroy();
-          //       this.segUserView = null;
-          //   }
-          //   settings = _.extend(settings, {
-          //       parentView: this,
-          //       brandName: this.brandName,
-          //       baseRoute:'seg_collection'
-          //   });
-
-          //   /* We let the view be created in this way even though it is
-          //    * normally against convention.
-          //    */
-          //   this.segCollectionView = new view(settings); // eslint-disable-line new-cap
-
-          //   if (opts.renderNow) {
-          //       this.segCollectionView.render();
-          //   }
-          // }
-          if(settings.viewName=='oriqcSAIPProjectView')
+          if(settings.viewName=='qcSAIPProjectView')
           {
             this.oriFromFilesystem = false;
             this.oriFromSaipArchive = true;
@@ -442,6 +359,9 @@ var mappingSeg = View.extend({
             // if (opts.renderNow) {
             //     this.dsSaipView.render();
             // }
+            $('#mappingSAIPArch').collapse('show');
+            $('#mappingSSRArch').collapse('hide');
+            $('#mappingUSERArch').collapse('hide');
           }
           this.selectForView(settings.viewName)
         } else {
@@ -585,17 +505,17 @@ var mappingSeg = View.extend({
     }*/
     if(viewName == 'qcUserView')
     {
-      this.$('.g-ori-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
+      this.$('.g-qc-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-Girder > .icon-left-dir').show();
     }
     if(viewName == 'qcSSRProjectView')
     {
-      this.$('.g-ori-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
+      this.$('.g-qc-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-Girder > .icon-left-dir').show();
     }
     if(viewName == 'qcSAIPProjectView')
     {
-      this.$('.g-ori-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
+      this.$('.g-qc-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
       $('.ds-Girder > .icon-left-dir').show();
     }
   },
@@ -744,6 +664,27 @@ var mappingSeg = View.extend({
         .removeClass('g-dropzone-show')
         .html('<i class="icon-folder-open"> "Drog ' + this.selectedClass + ' folder (from left data source) to here"</i>');
     }
+  },
+  _collaspeSideBar(e){
+
+    $(e.target).children()[0].classList.toggle('collapsein'); 
+    if($(e.target).children().hasClass('collapsein')){
+      this.$('.g-qc-nav-container').css('left','calc(-40vw + 20px)');
+      this.$('.g-qc-nav-container').css('marginLeft','0vw');
+      this.$('.linkZone').css('width','calc(100vw - 20px)');
+      this.$('.linkZone').css('marginLeft','0');
+    }else{
+      this.$('.g-qc-nav-container').css('left','0vw');
+      this.$('.g-qc-nav-container').css('marginLeft','0vw');
+      this.$('.linkZone').css('width','60vw');
+      this.$('.linkZone').css('marginLeft','0');
+    }
+  },
+  _addSSRProjectNav(e){
+    this.$el.html(MappingSegTemplate({
+      SSR_Project:this.SSR_ProjectCollection,
+      user:getCurrentUser()
+    }));
   }
 })
 export default mappingSeg;

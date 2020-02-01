@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 
 import * as allModels from 'girder/models';
-import AccessWidget from 'girder/views/widgets/AccessWidget';
+import AccessWidget from '../widgets/AccessWidget';
 import CheckedMenuWidget from 'girder/views/widgets/CheckedMenuWidget';
 import CollectionInfoWidget from 'girder/views/widgets/CollectionInfoWidget';
 import EditCollectionWidget from 'girder/views/widgets/EditCollectionWidget';
@@ -170,7 +170,7 @@ var HierarchyWidget = View.extend({
             parentView: this
         });
         this.folderListView.on('g:folderClicked', function (folder) {
-            // console.log(folder.resourceName)
+
             this.descend(folder);
 
             if (this.uploadWidget) {
@@ -183,7 +183,7 @@ var HierarchyWidget = View.extend({
                 this._childCountCheck();
             }, this);
 
-        if (this.parentModel.resourceName === 'folder') {
+        if (this.parentModel.resourceName === 'folder' || this.parentModel.resourceName === 'SSR/folder') {
             this._fetchToRoot(this.parentModel);
         } else {
             this.itemCount = 0;
@@ -211,6 +211,7 @@ var HierarchyWidget = View.extend({
      * is a folder type.
      */
     _initFolderViewSubwidgets: function () {
+
         if (!this.itemListView) {
             this.itemListView = new ItemListWidget({
                 itemFilter: this._itemFilter,
@@ -248,7 +249,7 @@ var HierarchyWidget = View.extend({
             if (unparsedQueryString.length > 0) {
                 unparsedQueryString = '?' + unparsedQueryString;
             }
-            console.log(unparsedQueryString);
+
         if (this._routing) {
             if(this.baseRoute){
                 var route = this.baseRoute + '/' +
@@ -259,7 +260,7 @@ var HierarchyWidget = View.extend({
                 this.breadcrumbs[0].get('_id');
             }
             
-            if (this.parentModel.resourceName === 'folder') {
+            if (this.parentModel.resourceName === 'folder' || this.parentModel.resourceName === 'SSR/folder') {
                 route += '/folder/' + this.parentModel.get('_id') + unparsedQueryString;
             }else{
                 route += unparsedQueryString;
@@ -304,7 +305,7 @@ var HierarchyWidget = View.extend({
         this.checkedMenuWidget.setElement(this.$('.g-checked-actions-menu')).render();
         this.folderListView.setElement(this.$('.g-folder-list-container')).render();
 
-        if (this.parentModel.resourceName === 'folder' && this._showItems) {
+        if ((this.parentModel.resourceName === 'folder' || this.parentModel.resourceName === 'SSR/folder') && this._showItems) {
             this._initFolderViewSubwidgets();
             this.itemListView.setElement(this.$('.g-item-list-container')).render();
             this.metadataWidget.setItem(this.parentModel);
@@ -393,7 +394,7 @@ var HierarchyWidget = View.extend({
      * Prompt user to edit the current folder or collection.
      */
     editFolderDialog: function () {
-        if (this.parentModel.resourceName === 'folder') {
+        if (this.parentModel.resourceName === 'folder' || this.parentModel.resourceName === 'SSR/folder') {
             new EditFolderWidget({
                 el: $('#g-dialog-container'),
                 parentModel: this.parentModel,
@@ -446,7 +447,7 @@ var HierarchyWidget = View.extend({
                 this.parentModel.on('g:deleted', function () {
                     if (type === 'collection') {
                         router.navigate('collections', {trigger: true});
-                    } else if (type === 'folder') {
+                    } else if (type === 'folder' || type === 'SSR/folder') {
                         this.breadcrumbs.pop();
                         this.setCurrentModel(this.breadcrumbs.slice(-1)[0]);
                     }
@@ -487,7 +488,7 @@ var HierarchyWidget = View.extend({
 
         if (this.parentModel.resourceName === 'collection') {
             new CollectionInfoWidget(opts).render();
-        } else if (this.parentModel.resourceName === 'folder') {
+        } else if (this.parentModel.resourceName === 'folder' || this.parentModel.resourceName === 'SSR/folder') {
             new FolderInfoWidget(opts).render();
         }
     },
@@ -532,6 +533,7 @@ var HierarchyWidget = View.extend({
      * @param parent The parent model to change to.
      */
     setCurrentModel: function (parent, opts) {
+
         opts = opts || {};
         this.parentModel = parent;
 
@@ -546,7 +548,7 @@ var HierarchyWidget = View.extend({
 
         this.updateChecked();
 
-        if (parent.resourceName === 'folder') {
+        if (parent.resourceName === 'folder' || parent.resourceName === 'SSR/folder') {
             if (this.itemListView) {
                 this.itemListView.initialize({
                     folderId: parent.get('_id'),
@@ -730,7 +732,7 @@ var HierarchyWidget = View.extend({
         }
         /* If we have an item picked but this page isn't a folder's list, then
          * you can't move or copy them here. */
-        if (this.parentModel.resourceName !== 'folder') {
+        if (this.parentModel.resourceName !== 'folder' || this.parentModel.resourceName !== 'SSR/folder') {
             if (pickedResources.resources.item &&
                     pickedResources.resources.item.length) {
                 return false;
@@ -935,6 +937,9 @@ var HierarchyWidget = View.extend({
     },
 
     editAccess: function () {
+        console.log('938');
+        console.log(this.parentModel);
+        console.log(this.parentModel.resourceName);
         new AccessWidget({
             el: $('#g-dialog-container'),
             modelType: this.parentModel.resourceName,

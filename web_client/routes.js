@@ -1,33 +1,45 @@
 import { splitRoute } from 'girder/misc';
 import events from './events';
-// import PanelContent from './views/panelContent';
+import PanelContentView from './views/PanelContent';
 
 import Router from './router';
 import ItemView from 'girder/views/body/ItemView';
 import UserView from './views/widgets/UserViewWidget';
 import CollectionView from './views/widgets/CollectionViewWidget';
 import SaipView from './views/widgets/SaipViewWidget';
+import app from './app';
+
 
 function bindRoutes() {
 
     Router.route('', 'index', function (params) {
-    	// console.log('call ""');
+    	events.trigger('HeaderView:navigateTo', 'Welcome');
+			events.trigger('panelContent:navigateTo', 'Welcome');
       // events.trigger('g:navigateTo', PanelContent, {});		//ImageView.render()
     });
 
 /*DataSource*/
-		Router.route('ds_users', 'users', function (params) {
+		Router.route('view', 'view', function (params) {
+				// PanelContentView.stepElementRender('View');
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
+				// console.log('calls');
+		});
+/*
+		Router.route('view/users', 'users', function (params) {
 				params={
 					el:'.selectionDom'
 				}
 		    events.trigger('ds:selectUsers', params);
 		    events.trigger('ds:highlightItem', 'dsUsersView');
 		});
-
-		Router.route('ds_user/:id', 'user', function (userId, params) {
+*/
+		Router.route('view/user/:id', 'user', function (userId, params) {
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
 		    UserView.fetchAndInit(userId, {
 		    		viewName: 'dsUsersView',
-						el: '.selectionDom',
+						el: '#USERArch',
 						workflow:'ds'
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // dialog: params.dialog
@@ -35,7 +47,9 @@ function bindRoutes() {
 		    // events.trigger('ds:selectUsers', params);
 		    // events.trigger('ds:highlightItem', 'dsGirderView');
 		});
-		Router.route('ds_user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
+		Router.route('view/user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
 		    UserView.fetchAndInit(userId, {
 		        folderId: folderId,
 		        // upload: params.dialog === 'upload',
@@ -45,12 +59,13 @@ function bindRoutes() {
 		        // itemCreate: params.dialog === 'itemcreate'
 		        workflow:'ds',
 		        viewName: 'dsUsersView',
-						el: '.selectionDom'
+						el: '#USERArch'
 		    });
 		    events.trigger('ds:selectUsers', params);
 		    events.trigger('ds:highlightItem', 'dsUsersView');
 		});
-		Router.route('ds_collections', 'collections', function (params) {
+/*
+		Router.route('view/collections', 'collections', function (params) {
 				params={
 					el:'.selectionDom'
 				}
@@ -58,7 +73,10 @@ function bindRoutes() {
 		    events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		    
 		});
-		Router.route('ds_collection/:id', 'collectionAccess', function (cid, params) {
+		*/
+		Router.route('view/collection/:id', 'collectionAccess', function (cid, params) {
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
 				CollectionView.fetchAndInit(cid, {
 	        // access: params.dialog === 'access',
 	        // edit: params.dialog === 'edit',
@@ -66,12 +84,14 @@ function bindRoutes() {
 	        // dialog: params.dialog
 	        workflow:'ds',
 	        viewName: 'dsSSRProjectView',
-		    	el: '.selectionDom'
+		    	el: '#SSRArch'
 	    });
 				// events.trigger('ds:selectCollections', params);
 		    // events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		});
-		Router.route('ds_collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
+		Router.route('view/collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
 		    CollectionView.fetchAndInit(cid, {
 		        folderId: folderId,
 		        // upload: params.dialog === 'upload',
@@ -83,17 +103,19 @@ function bindRoutes() {
 		        // itemCreate: params.dialog === 'itemcreate'
 		        workflow:'ds',
 		        viewName: 'dsSSRProjectView',
-		    		el: '.selectionDom'
+		    		el: '#SSRArch'
 		    });
 		    events.trigger('ds:selectCollections', params);
 		    events.trigger('ds:highlightItem', 'dsSSRProjectView');
 		});
 
-		Router.route('ds_saip', 'user', function (params) {
+		Router.route('view/saip', 'user', function (params) {
+				events.trigger('HeaderView:navigateTo', 'View');
+				events.trigger('panelContent:navigateTo', 'View');
 				SaipView.fetchAndInit({
 		        workflow:'ds',
 		        viewName: 'dsSAIPProjectView',
-		    		el: '.selectionDom'
+		    		el: '#SAIPArch'
 		    });
 		    // events.trigger('ds:selectSAIP', params);
 		    // events.trigger('ds:highlightItem', 'dsSAIPView');
@@ -104,17 +126,23 @@ function bindRoutes() {
 
 		
 /*QC*/
+		Router.route('qc', 'qc', function (params) {
+			events.trigger('HeaderView:navigateTo', 'Link');
+			events.trigger('panelContent:navigateTo', 'Link');
+		});
 
-		Router.route('qc_saip', 'users', function (params) {
+		Router.route('qc/saip', 'users', function (params) {
+			events.trigger('HeaderView:navigateTo', 'Link');
+			events.trigger('panelContent:navigateTo', 'Link');
 			SaipView.fetchAndInit({
 		        workflow:'qc',
-		        viewName: 'oriqcSAIPProjectView',
-		    		el: '.g-ori-container'
+		        viewName: 'qcSAIPProjectView',
+		    		el: '#mappingSAIPArch'
 		    });
 		    // events.trigger('qc:selectSAIP', params);
 		    // events.trigger('qc:highlightItem', 'oriSAIPView');
 		});
-
+/*
 		Router.route('seg_collections', 'collections', function (params) {
 				params={
 					el:'.g-seg-container'
@@ -167,7 +195,7 @@ function bindRoutes() {
 		    events.trigger('qc:selectPreparations', params);
 		    events.trigger('qc:highlightItem', 'segPreparationsView');
 		});
-
+*/
 		// Router.route('ori_seg_user/:id', 'user', function (userId, params) {
 		// 	UserView.fetchAndInit(userId, {
 		//     		viewName: 'ori_segqcUsersView',
@@ -177,17 +205,21 @@ function bindRoutes() {
 		//     });
 		// });
 
-		Router.route('qc_user/:id', 'user', function (userId, params) {
+		Router.route('qc/user/:id', 'user', function (userId, params) {
+				events.trigger('HeaderView:navigateTo', 'Link');
+				events.trigger('panelContent:navigateTo', 'Link');
 		    UserView.fetchAndInit(userId, {
 		    		viewName: 'qcUserView',
-						el: '.g-ori-container'
+						el: '#mappingUSERArch'
 		        // folderCreate: params.dialog === 'foldercreate',
 		        // dialog: params.dialog
 		    });
 		    // console.log(this)
 		});
 
-		Router.route('qc_user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
+		Router.route('qc/user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
+		    events.trigger('HeaderView:navigateTo', 'Link');
+				events.trigger('panelContent:navigateTo', 'Link');
 		    UserView.fetchAndInit(userId, {
 		        folderId: folderId,
 		        // upload: params.dialog === 'upload',
@@ -196,7 +228,7 @@ function bindRoutes() {
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
 		        viewName: 'qcUserView',
-						el: '.g-ori-container'
+						el: '#mappingUSERArch'
 		    });
 		});
 
@@ -221,6 +253,7 @@ function bindRoutes() {
 						el: '.g-ori-container'
 		    });
 		});*/
+/*		
 		Router.route('seg_user/:id', 'user', function (userId, params) {
 			
 		    UserView.fetchAndInit(userId, {
@@ -243,19 +276,23 @@ function bindRoutes() {
 						el: '.g-seg-container'
 		    });
 		});
-
+*/
 		
-		Router.route('qc_collection/:id', 'collectionAccess', function (cid, params) {
+		Router.route('qc/collection/:id', 'collectionAccess', function (cid, params) {
+				events.trigger('HeaderView:navigateTo', 'Link');
+				events.trigger('panelContent:navigateTo', 'Link');
 				CollectionView.fetchAndInit(cid, {
 	        // access: params.dialog === 'access',
 	        // edit: params.dialog === 'edit',
 	        // folderCreate: params.dialog === 'foldercreate',
 	        // dialog: params.dialog
 	        viewName: 'qcSSRProjectView',
-		    	el: '.g-ori-container'
+		    	el: '#mappingSSRArch'
 	    });
 		});
-		Router.route('qc_collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
+		Router.route('qc/collection/:id/folder/:id', 'collectionFolder', function (cid, folderId, params) {
+		    events.trigger('HeaderView:navigateTo', 'Link');
+				events.trigger('panelContent:navigateTo', 'Link');
 		    CollectionView.fetchAndInit(cid, {
 		        folderId: folderId,
 		        // upload: params.dialog === 'upload',
@@ -266,7 +303,7 @@ function bindRoutes() {
 		        // folderEdit: params.dialog === 'folderedit',
 		        // itemCreate: params.dialog === 'itemcreate'
 		        viewName: 'qcSSRProjectView',
-		    		el: '.g-ori-container'
+		    		el: '#mappingSSRArch'
 		    });
 		});
 
@@ -320,6 +357,17 @@ function bindRoutes() {
 		    });
 		});*/
 
+/*Analysis*/
+		Router.route('analysis', 'analysis', function (params) {
+			events.trigger('HeaderView:navigateTo', 'Analysis');
+			events.trigger('panelContent:navigateTo', 'Analysis');
+		});
+
+/*History*/
+		Router.route('history', 'history', function (params) {
+			events.trigger('HeaderView:navigateTo', 'History');
+			events.trigger('panelContent:navigateTo', 'History');
+		});
     return Router;
 }
 

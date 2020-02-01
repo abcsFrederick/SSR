@@ -98,6 +98,14 @@ ul.previewButton a
     margin-bottom 5px
 
 .g-ds-nav-container
+    width 40vw
+    height calc(100vh - 52px)
+    display inline-block
+    transition 1s
+    position absolute
+    left 0vw
+    margin-left 0vw
+.g-ds-nav-container
     .g-global-nav-main
         >ul.g-global-nav
             >li
@@ -120,6 +128,7 @@ ul.previewButton a
         border 1px solid #e2e2e42e
         border-radius 3px
         cursor w-resize
+    
 .icon-right-dir
     float right
     display none
@@ -131,4 +140,61 @@ ul.previewButton a
         border-radius 3px
         cursor e-resize
 
+.g-global-nav-main
+    width calc(100% - 20px)
+    display inline-block
+    height 100%
+.s-nav-siderBar
+    height calc(100vh - 52px)
+    width 20px
+    float right
+    cursor pointer
+.s-nav-siderBar:hover
+    background-color #f6f6f6
+    transition all 0.2s
+.ssrVisualizer
+    width 60vw
+    float right
+    height calc(100vh - 52px)
+    transition 1s
+    display inline-flex
+    
+.hideBar    
+    font-weight 600
+    text-align center
+    position relative
+    top 50%
+    left: 30%;
+    &:before
+        font-family fontello
+        content "\e90f"
+.hideBar.collapsein
+    font-weight 600
+    text-align center
+    position relative
+    top 50%
+    left: 30%;
+    &:before
+        font-family fontello
+        content "\e910"
 
+.datasourceNavPanel.panel
+    margin-bottom 0px 
+    background-color rgba(0,0,0,0)
+    border 0px solid
+    border-radius 0px
+    box-shadow 0 1px 1px rgba(0,0,0,.05) 
+    list-style none      
+.datasourceNavPanel.panel:hover
+    background-color #f6f6f6
+    transition all 0.2s
+    
+.dataSourceArch
+    margin-left 30px
+    margin-right 10px
+    // overflow auto
+    max-height 300px
+    
+.g-global-nav-li[aria-expanded="true"]
+    font-weight bolder
+    font-style italic

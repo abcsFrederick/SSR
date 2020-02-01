@@ -38,29 +38,29 @@ class Record(Model):
 
 			if not existRecord:
 				
-				if mode=='docker':
+				if mode == 'docker':
 					dockerimage = obj['job'].get('kwargs').get('task').get('docker_image')
-				inputs = obj['job'].get('kwargs').get('inputs')
+					inputs = obj['job'].get('kwargs').get('inputs')
 
-				doc = {
-					'creator':user,
-					'created':created,
-					'job':{
-						'jobId':ObjectId(jobId),
-						'status':jobStatus
-					},
-					'task':{
-							'title':title,
-							'mode':mode,
-							'dockerImage':dockerimage,
-							'inputs':inputs,
-							'outputs':'',
-					},
-					'visualizer':''
-				}
-				print 'new job'
-				print jobId
-				self.collection.insert_one(doc)
+					doc = {
+						'creator':user,
+						'created':created,
+						'job':{
+							'jobId':ObjectId(jobId),
+							'status':jobStatus
+						},
+						'task':{
+								'title':title,
+								'mode':mode,
+								'dockerImage':dockerimage,
+								'inputs':inputs,
+								'outputs':'',
+						},
+						'visualizer':''
+					}
+					print 'new job'
+					print jobId
+					self.collection.insert_one(doc)
 			else:
 				print 'exist job'
 				print jobId

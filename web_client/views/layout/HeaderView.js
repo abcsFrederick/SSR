@@ -1,5 +1,5 @@
 import headerTemplate from '../../templates/layout/header.pug';
-// import './stylesheets/layout/header.styl';
+import '../../stylesheets/layout/header.styl';
 
 import View from 'girder/views/View';
 import router from '../../router';

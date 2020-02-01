@@ -2,7 +2,7 @@ import jQuery from 'jquery';
 import events from '../../events';
 import eventStream from 'girder/utilities/EventStream';
 import { logout, getCurrentUser,fetchCurrentUser, setCurrentUser } from 'girder/auth';
-import { splitRoute } from 'girder/misc';
+import { splitRoute, parseQueryString } from 'girder/misc';
 import Backbone from 'backbone';
 import View from 'girder/views/View';
 import router from '../../router';
@@ -18,12 +18,12 @@ import Workflow from '../workflow/workflow';
 import Visualization from '../visualization/visualization';
 // import 'bootstrap';
 // import 'bootstrap/dist/css/bootstrap.css';
-import SlicerPanelGroup from 'girder_plugins/slicer_cli_web_SSR/views/PanelGroupSSR';
 import FolderModel from 'girder/models/FolderModel';
 import UserModel from 'girder/models/UserModel';
 import CollectionModel from 'girder/models/CollectionModel';
 
 import HeaderUserView from 'girder/views/layout/HeaderUserView';
+
 var HeaderNavView = View.extend({
   events:{
     'click #View': '_view',
@@ -44,9 +44,13 @@ var HeaderNavView = View.extend({
       },
       'History':{
         'DOM':'s-full-page-body-History'
+      },
+      'Welcome':{
+        'DOM':'s-full-page-body-Welcome'
       }
-    },
-    this.listenTo(events, 'query:step', this.stepElementRender);
+    };
+    events.on('HeaderView:navigateTo', this.stepElementRender, this);
+    // this.listenTo(events, 'query:step', this.stepElementRender);
 
   },
   render() {
@@ -54,30 +58,74 @@ var HeaderNavView = View.extend({
   },
   _view(e){
     e.preventDefault();
-    router.setQuery('step','View', {trigger: true});
+    let curRoute = Backbone.history.fragment,
+        routeParts = splitRoute(curRoute),
+        queryString = parseQueryString(routeParts.name);
+    let unparsedQueryString = $.param(queryString);
+        if (unparsedQueryString.length > 0) {
+            unparsedQueryString = '?' + unparsedQueryString;
+        }
+    // router.enabled(1);
+    // console.log(curRoute);
+    router.navigate('view' + unparsedQueryString, {trigger: true});
+    // router.setQuery('step','View', {trigger: true});
   },
   _link(e){
     e.preventDefault();
-    router.setQuery('step','Link', {trigger: true});
+    let curRoute = Backbone.history.fragment,
+        routeParts = splitRoute(curRoute),
+        queryString = parseQueryString(routeParts.name);
+    let unparsedQueryString = $.param(queryString);
+        if (unparsedQueryString.length > 0) {
+            unparsedQueryString = '?' + unparsedQueryString;
+        }
+    // router.enabled(1);
+    // console.log(curRoute);
+    router.navigate('qc' + unparsedQueryString, {trigger: true});
+    // router.setQuery('step','Link', {trigger: true});
     // console.log(Backbone.history.fragment);
   },
   _analysis(e){
     e.preventDefault();
-    router.setQuery('step','Analysis', {trigger: true});
+    let curRoute = Backbone.history.fragment,
+        routeParts = splitRoute(curRoute),
+        queryString = parseQueryString(routeParts.name);
+    let unparsedQueryString = $.param(queryString);
+        if (unparsedQueryString.length > 0) {
+            unparsedQueryString = '?' + unparsedQueryString;
+        }
+    // router.enabled(1);
+    // console.log(curRoute);
+    router.navigate('analysis' + unparsedQueryString, {trigger: true});
+    // router.setQuery('step','Analysis', {trigger: true});
   },
   _history(e){
     e.preventDefault();
-    router.setQuery('step','History', {trigger: true});
+    let curRoute = Backbone.history.fragment,
+        routeParts = splitRoute(curRoute),
+        queryString = parseQueryString(routeParts.name);
+    let unparsedQueryString = $.param(queryString);
+        if (unparsedQueryString.length > 0) {
+            unparsedQueryString = '?' + unparsedQueryString;
+        }
+    // router.enabled(1);
+    // console.log(curRoute);
+    router.navigate('history' + unparsedQueryString, {trigger: true});
+    // router.setQuery('step','History', {trigger: true});
   },
   stepElementRender(nav){
-    
+    if(nav === 'View'){
+      $('#Actions').show();
+    }else{
+      $('#Actions').hide();
+    }
     Object.keys(this.nav).forEach(key => {
       let dom = this.nav[key];
       $('#' + key).removeClass('active');
       // $('#' + dom).hide();
       //use key and value here
     });
-    $('#' + nav).addClass('active');
+    if(nav !== 'Welcome') $('#' + nav).addClass('active');
     // $('#' + this.nav[nav].DOM).show('active');
   }
 });

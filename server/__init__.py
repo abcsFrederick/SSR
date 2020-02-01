@@ -21,7 +21,7 @@ from .models.record import Record
 from girder.plugins.jobs.models.job import Job
 from girder.models.user import User
 import datetime
-
+from girder.utility.progress import ProgressContext
 
 _template = os.path.join(
 	os.path.dirname(__file__),
@@ -34,7 +34,10 @@ class SSR(Resource):
 		self.resourceName='SSR'
 		self.route('GET', (),self.findAllRecord)
 		self.route('GET',('prepareInputs',),self.prepareInputs)
-		self.route('GET', ('folder',),self.findFolder)
+		self.route('GET', ('folder',), self.findFolder)
+		self.route('GET', ('folder',':id',), self.ssrGetFolder)
+		self.route('GET', ('folder',':id', 'details'), self.ssrGetFolderDetails)
+		self.route('GET', ('folder',':id', 'rootpath'), self.ssrRootpath)
 		self.route('GET', ('item',),self.findItem)
 		self.route('POST',('folder',),self.ssrCreateFolder)
 		self.route('GET',('segmentationCheck',':originalItemId'),self.segmentationCheck)
@@ -43,7 +46,10 @@ class SSR(Resource):
 		self.route('PUT', ('Visualizer',':jobId'),self.visualizerUpdate)
 		self.route('PUT',('segmentationLink',':originalItemId',':segmentationItemId'),self.segmentationLink)
 		self.route('PUT',('segmentationLinkEditing',':originalFolderId',':segmentationEditingFolderId'),self.segmentationLinkEditing)
-		self.route('DELETE',('segmentationRemove',':originalItemId',':segmentationItemId'),self.segmentationRemove)
+		# self.route('DELETE',('segmentationRemove',':originalItemId',':segmentationItemId'),self.segmentationRemove)
+		self.route('DELETE',('segmentationRemove',':originalFolderId',':segmentationFolderId'),self.segmentationRemove)
+		self.route('GET', ('folder',':id', 'access'), self.ssrGetFolderAccess)
+		self.route('PUT', ('folder',':id', 'access'), self.ssrUpdateFolderAccess)
 
 	@access.user
 	@autoDescribeRoute(
@@ -53,7 +59,7 @@ class SSR(Resource):
 	def segmentationCheck(self, originalItemId):
 		user = self.getCurrentUser()
 		
-		originalItem = ItemModel().load(originalItemId,level=AccessType.READ,user=user)
+		originalItem = ItemModel().load(originalItemId, level=AccessType.READ, user=user)
 		segmentationOfCurrentUser = []
 		needToRemove = []
 		if 'segmentation' not in originalItem.keys() and 'editing' not in originalItem.keys():
@@ -97,8 +103,8 @@ class SSR(Resource):
 									for each in parentFolder['access']['users']:
 										if str(each['id']) == str(user['_id']):
 											access_level = max(access_level, each['level'])
-								# 			print 'user access level'
-								# 			print access_level
+								#       print 'user access level'
+								#       print access_level
 								# print '86'
 								for group in user['groups']:
 									# print str(group)
@@ -213,41 +219,75 @@ class SSR(Resource):
 			else:
 				return 'No any segmentations nor editing(currentUser) linked in original [folder] '
 
+	# @access.user
+	# @autoDescribeRoute(
+	#   Description('Remove a segmentation item from original item,  and remove their parent folders at the same time')
+	#   .param('originalItemId','Original item Id.',paramType='path')
+	#   .param('segmentationItemId','Segmentation item Id.',paramType='path')
+	#   .errorResponse())
+	# def segmentationRemove(self, originalItemId, segmentationItemId):
+	#   user = self.getCurrentUser()
+		
+	#   originalItem = ItemModel().load(originalItemId,level=AccessType.READ,user=user)
+	#   segmentationItem = ItemModel().load(segmentationItemId,level=AccessType.READ,user=user)
+
+	#   originalFolder = FolderModel().load(originalItem['folderId'],level=AccessType.READ,user=user)
+	#   segmentationFolder = FolderModel().load(segmentationItem['folderId'],level=AccessType.READ,user=user)
+
+	#   # Unlink item
+	#   if 'segmentation' not in originalItem.keys():
+	#     return 'There is no segmentation linked to this [item]'
+	#   else:
+	#     if len(originalItem['segmentation']) != 0:
+	#       for existSegmentation in originalItem['segmentation']:
+					
+	#         # if not existSegmentation 
+	#         #   return null
+	#         if existSegmentation['_id'] == segmentationItem['_id']:
+	#           if existSegmentation['creatorId'] == user['_id']:
+	#             originalItem['segmentation'].remove(existSegmentation)
+	#             ItemModel().updateItem(originalItem)
+							
+	#           else:
+	#             return 'Contact Creator for removing segmentation'
+	#         else:
+	#           return 'Specified Segmentation is not exist'
+	#     else:
+	#       return 'No any segmentations linked in original [item] '
+
+	#   # Unlink folder
+	#   if 'segmentation' not in originalFolder.keys():
+	#     return 'There is no segmentation linked to this [folder]'
+	#   else:
+	#     if len(originalFolder['segmentation']) != 0:
+	#       for existSegmentation in originalFolder['segmentation']:
+					
+	#         # if not existSegmentation 
+	#         #   return null
+	#         if existSegmentation['_id'] == segmentationFolder['_id']:
+	#           if existSegmentation['creatorId'] == user['_id']:
+	#             originalFolder['segmentation'].remove(existSegmentation)
+	#             FolderModel().updateFolder(originalFolder)
+	#           else:
+	#             return 'Contact Creator for removing segmentation'
+	#         else:
+	#           return 'Specified Segmentation is not exist'
+	#     else:
+	#       return 'No any segmentations linked in original [folder] '
+
+	#   return originalItem
+
 	@access.user
 	@autoDescribeRoute(
-		Description('Remove a segmentation item from original item,  and remove their parent folders at the same time')
-		.param('originalItemId','Original item Id.',paramType='path')
-		.param('segmentationItemId','Segmentation item Id.',paramType='path')
+		Description('Remove a segmentation Folder from original Folder and their childItems at the same time')
+		.param('originalFolderId','Original Folder Id.',paramType='path')
+		.param('segmentationFolderId','Segmentation Folder Id.',paramType='path')
 		.errorResponse())
-	def segmentationRemove(self, originalItemId, segmentationItemId):
+	def segmentationRemove(self, originalFolderId, segmentationFolderId):
+
 		user = self.getCurrentUser()
-		
-		originalItem = ItemModel().load(originalItemId,level=AccessType.READ,user=user)
-		segmentationItem = ItemModel().load(segmentationItemId,level=AccessType.READ,user=user)
-
-		originalFolder = FolderModel().load(originalItem['folderId'],level=AccessType.READ,user=user)
-		segmentationFolder = FolderModel().load(segmentationItem['folderId'],level=AccessType.READ,user=user)
-
-		# Unlink item
-		if 'segmentation' not in originalItem.keys():
-			return 'There is no segmentation linked to this [item]'
-		else:
-			if len(originalItem['segmentation']) != 0:
-				for existSegmentation in originalItem['segmentation']:
-					
-					# if not existSegmentation 
-					#		return null
-					if existSegmentation['_id'] == segmentationItem['_id']:
-						if existSegmentation['creatorId'] == user['_id']:
-							originalItem['segmentation'].remove(existSegmentation)
-							ItemModel().updateItem(originalItem)
-							
-						else:
-							return 'Contact Creator for removing segmentation'
-					else:
-						return 'Specified Segmentation is not exist'
-			else:
-				return 'No any segmentations linked in original [item] '
+		originalFolder = FolderModel().load(originalFolderId,level=AccessType.READ,user=user)
+		segmentationFolder = FolderModel().load(segmentationFolderId,level=AccessType.READ,user=user)
 
 		# Unlink folder
 		if 'segmentation' not in originalFolder.keys():
@@ -257,20 +297,42 @@ class SSR(Resource):
 				for existSegmentation in originalFolder['segmentation']:
 					
 					# if not existSegmentation 
-					#		return null
+					#   return null
 					if existSegmentation['_id'] == segmentationFolder['_id']:
 						if existSegmentation['creatorId'] == user['_id']:
 							originalFolder['segmentation'].remove(existSegmentation)
 							FolderModel().updateFolder(originalFolder)
 						else:
 							return 'Contact Creator for removing segmentation'
-					else:
-						return 'Specified Segmentation is not exist'
+					# else:
+					#   return 'Specified Segmentation is not exist'
 			else:
 				return 'No any segmentations linked in original [folder] '
 
-		return originalItem
+		# Unlink childItems
+		# for itemsInOriginal in FolderModel().childItems(originalFolder):
 
+		# oriChildItemsSegArr = [childItems['segmentation'] for childItems in FolderModel().childItems(originalFolder)]
+		# oriChildItemsSegId = [seg['_id'] for itemSegs in oriChildItemsSegArr]
+		segChildItemsId = [childItems['_id'] for childItems in FolderModel().childItems(segmentationFolder)]
+
+		for childItems in FolderModel().childItems(originalFolder):
+			childItemModel = ItemModel().load(childItems['_id'],level=AccessType.READ,user=user)
+
+			SegIdsInCurrentItem = [eachSegInCurrentItem['_id'] for eachSegInCurrentItem in  childItemModel['segmentation']]
+			# print(SegIdsInCurrentItem)
+			# print('-----')
+			# result =  [elem in SegIdsInCurrentItem  for elem in segChildItemsId]
+			result =  [elem for elem in segChildItemsId if elem in SegIdsInCurrentItem]
+			needToRemoveItem = ItemModel().load(result[0],level=AccessType.READ,user=user)
+
+			for eachSegInCurrentItem in childItemModel['segmentation']:
+				if needToRemoveItem['_id'] == eachSegInCurrentItem['_id']:
+					childItemModel['segmentation'].remove(eachSegInCurrentItem)
+			ItemModel().updateItem(childItemModel)
+
+		return 'done'
+		# print(segChildItemsId)
 	@access.user
 	@autoDescribeRoute(
 		Description('Link a segmentation item to original item, and link their parent folders at the same time')
@@ -289,16 +351,16 @@ class SSR(Resource):
 		# Link item
 		if 'segmentation' in segmentationItem.keys():
 			return 'Segmentation [item] has a segmentation linked on it, please remove its segmentation first'
-		if 'segmentation' in originalItem.keys():	
+		if 'segmentation' in originalItem.keys(): 
 			isExist = False
-			#	There is an exist segmentation
+			# There is an exist segmentation
 			for existSegmentation in originalItem['segmentation']:
 				if existSegmentation['_id'] == segmentationItem['_id']:
 					isExist = True
-					#	Same user update a same item, normally same item will belong to the same user
+					# Same user update a same item, normally same item will belong to the same user
 					if existSegmentation['creatorId'] == segmentationItem['creatorId']:
 						existSegmentation['timeStamp'] = datetime.datetime.utcnow()
-					#	Different user update a same item will make a new segmentation record
+					# Different user update a same item will make a new segmentation record
 					else:
 						# originalItem assignment could be a *danger* action in originalItem loop
 						originalItem['segmentation'].append(segmentationItem)
@@ -312,16 +374,16 @@ class SSR(Resource):
 		# Link Folder
 		if 'segmentation' in segmentationFolder.keys():
 			return 'Segmentation [folder] has a segmentation linked on it, please remove its segmentation first'
-		if 'segmentation' in originalFolder.keys():	
+		if 'segmentation' in originalFolder.keys(): 
 			isExist = False
-			#	There is an exist segmentation
+			# There is an exist segmentation
 			for existSegmentation in originalFolder['segmentation']:
 				if existSegmentation['_id'] == segmentationFolder['_id']:
 					isExist = True
-					#	Same user update a same item, normally same item will belongs to the same user
+					# Same user update a same item, normally same item will belongs to the same user
 					if existSegmentation['creatorId'] == segmentationFolder['creatorId']:
 						existSegmentation['timeStamp'] = datetime.datetime.utcnow()
-					#	Different user update a same item will make a new segmentation record
+					# Different user update a same item will make a new segmentation record
 					else:
 						originalFolder['segmentation'].append(segmentationFolder)
 			if not isExist:
@@ -362,7 +424,7 @@ class SSR(Resource):
 					if str(user['_id']) in itemsInOriginal['editing'].keys():
 						isExist = False
 
-						#	There is an exist editing segmentation
+						# There is an exist editing segmentation
 						for existEditingSegmentation in itemsInOriginal['editing'][str(user['_id'])]:
 							# it should never be same, if this api is called means copied from collection is made which will assign
 							# a different _id fro new copy. If editing copy is used for editing this api should not be called 
@@ -390,7 +452,7 @@ class SSR(Resource):
 		if str(user['_id'])  in originalFolder['editing'].keys():
 
 			isExist = False
-			#	There is an exist segmentation
+			# There is an exist segmentation
 			for existEditingSegmentation in originalFolder['editing'][str(user['_id'])]:
 				if existEditingSegmentation['_id'] == copiedSegmentationFolder['_id']:
 					isExist = True
@@ -421,10 +483,10 @@ class SSR(Resource):
 		stream = client._streamingFileDownload(sourceFileId)
 		size = int(stream.headers.get('Content-Length'))
 		file = client.uploadFileContents(targetFileId,StringIO(stream.content),size)
-	#	sourceFile = FileModel().load(sourceFileId,user=self.getCurrentUser(), level=AccessType.WRITE)
-	#	stream=FileModel().download(sourceFile)
-	#	obj=Upload().createUploadToFile(sourceFile,user=self.getCurrentUser(),size=sourceFile['size'])
-	#	print obj['_id']
+	# sourceFile = FileModel().load(sourceFileId,user=self.getCurrentUser(), level=AccessType.WRITE)
+	# stream=FileModel().download(sourceFile)
+	# obj=Upload().createUploadToFile(sourceFile,user=self.getCurrentUser(),size=sourceFile['size'])
+	# print obj['_id']
 	@describeRoute(
 		Description('Search for record.')
 		.responseClass('SSR')
@@ -443,8 +505,7 @@ class SSR(Resource):
 	def findAllRecord(self,params):
 		limit, offset, sort = self.getPagingParameters(params, 'lowerName')
 		query = {}
-		user=self.getCurrentUser()
-		print len(user['groups'])
+		user = self.getCurrentUser()
 		fields = list(Record().baseFields)
 		if user['admin']:
 			if 'jobId' in params:
@@ -464,12 +525,11 @@ class SSR(Resource):
 					if 'title' in params:
 						query['task.title'] = params.get('title')
 						fields = ['created','job']
-			print query
 			# fields = list(Record().baseFields)
 			# print fields
 			# print list(Record().find(query, limit=limit, offset=offset, sort=sort, fields=fields))
 			return list(Record().find(query, limit=limit, offset=offset, sort=sort, fields=fields))
-		elif len(user['groups']):
+		else:
 			if 'jobId' in params:
 				job = Job().load(params.get('jobId'), force=True)
 				Job().requireAccess(
@@ -486,6 +546,11 @@ class SSR(Resource):
 				query['creator.groups'] = eachGroup
 				AllAccessibleRecord.extend(list(Record().find(query, limit=limit, offset=offset, sort=sort, fields=fields)))
 			# print list(Record().find(query, limit=limit, offset=offset, sort=sort, fields=fields))
+
+			currentUserQuery = {}
+			currentUserQuery['creator._id'] = self.getCurrentUser()['_id']
+			currentUserRecord = list(Record().find(currentUserQuery, limit=limit, offset=offset, sort=sort, fields=fields))
+			AllAccessibleRecord.extend(currentUserRecord)
 			return AllAccessibleRecord
 
 	@describeRoute(
@@ -577,8 +642,8 @@ class SSR(Resource):
 			for file in ItemModel().childFiles(item=srcItem):
 				# Avoid sychronizer conflict, will cause to unable to download
 				# if file['imported']:
-				# 	del file['path']
-				# 	del file['imported']
+				#   del file['path']
+				#   del file['imported']
 				fileModel.copyFile(file, creator=user, item=newItem)
 
 			# Reload to get updated size value
@@ -587,11 +652,11 @@ class SSR(Resource):
 
 		if params.get('SegmentationArr') is not None:
 			for y in eval(params.get('SegmentationArr')):
-				srcFile = FileModel().load(y,level=AccessType.READ,user=user)		
+				srcFile = FileModel().load(y,level=AccessType.READ,user=user)   
 				# Avoid sychronizer conflict, will cause to unable to download
 				# if srcFile['imported']:
-				# 	del srcFile['path']
-				# 	del srcFile['imported']
+				#   del srcFile['path']
+				#   del srcFile['imported']
 				fileModel.copyFile(srcFile, creator=user, item=newItemSeg)
 		if params.get('SegmentationArr') is not None:
 			return {'newTaskFolder':newFolder,'originalFolderUnderTask':newFolderOri,'segmentationItemUnderTask':newItemSeg}
@@ -655,6 +720,43 @@ class SSR(Resource):
 
 
 
+	@access.public(scope=TokenScope.DATA_READ)
+	@filtermodel(model=SSRFolderModel)
+	@autoDescribeRoute(
+			Description('Get a folder by ID.')
+			.responseClass('Folder')
+			.modelParam('id', model=FolderModel, level=AccessType.READ)
+			.errorResponse('ID was invalid.')
+			.errorResponse('Read access was denied for the folder.', 403)
+	)
+	def ssrGetFolder(self, folder):
+			return folder
+
+
+	@access.public(scope=TokenScope.DATA_READ)
+	@autoDescribeRoute(
+			Description('Get detailed information about a folder.')
+			.modelParam('id', model=SSRFolderModel, level=AccessType.READ)
+			.errorResponse()
+			.errorResponse('Read access was denied on the folder.', 403)
+	)
+	def ssrGetFolderDetails(self, folder):
+			return {
+					'nItems': SSRFolderModel().countItems(folder),
+					'nFolders': SSRFolderModel().countFolders(
+							folder, user=self.getCurrentUser(), level=AccessType.READ)
+			}
+
+	@access.public(scope=TokenScope.DATA_READ)
+	@autoDescribeRoute(
+			Description('Get the path to the root of the folder\'s hierarchy.')
+			.modelParam('id', model=SSRFolderModel, level=AccessType.READ)
+			.errorResponse('ID was invalid.')
+			.errorResponse('Read access was denied for the folder.', 403)
+	)
+	def ssrRootpath(self, folder, params):
+			return SSRFolderModel().parentsToRoot(folder, user=self.getCurrentUser())
+			
 	@access.public(scope=TokenScope.DATA_READ)
 	@filtermodel(model=SSRItemModel)
 	@autoDescribeRoute(
@@ -768,6 +870,48 @@ class SSR(Resource):
 					newFolder = SSRFolderModel().setMetadata(newFolder, metadata)
 			return newFolder
 
+	@access.user(scope=TokenScope.DATA_OWN)
+	@autoDescribeRoute(
+			Description('Get the access control list for a folder.')
+			.responseClass('Folder')
+			.modelParam('id', model=SSRFolderModel, level=AccessType.ADMIN)
+			.errorResponse('ID was invalid.')
+			.errorResponse('Admin access was denied for the folder.', 403)
+	)
+	def ssrGetFolderAccess(self, folder):
+			return SSRFolderModel().getFullAccessList(folder)
+
+
+	@access.user(scope=TokenScope.DATA_OWN)
+	@filtermodel(model=FolderModel, addFields={'access'})
+	@autoDescribeRoute(
+			Description('Update the access control list for a folder.')
+			.modelParam('id', model=SSRFolderModel, level=AccessType.ADMIN)
+			.jsonParam('access', 'The JSON-encoded access control list.', requireObject=True)
+			.jsonParam('publicFlags', 'JSON list of public access flags.', requireArray=True,
+								 required=False)
+			.param('public', 'Whether the folder should be publicly visible.',
+						 dataType='boolean', required=False)
+			.param('recurse', 'Whether the policies should be applied to all '
+						 'subfolders under this folder as well.', dataType='boolean',
+						 default=False, required=False)
+			.param('progress', 'If recurse is set to True, this controls whether '
+						 'progress notifications will be sent.', dataType='boolean',
+						 default=False, required=False)
+			.errorResponse('ID was invalid.')
+			.errorResponse('Admin access was denied for the folder.', 403)
+	)
+	def ssrUpdateFolderAccess(self, folder, access, publicFlags, public, recurse, progress):
+			user = self.getCurrentUser()
+			progress = progress and recurse  # Only enable progress in recursive case
+			with ProgressContext(progress, user=user, title='Updating permissions',
+													 message='Calculating progress...') as ctx:
+					if progress:
+							ctx.update(total=SSRFolderModel().subtreeCount(
+									folder, includeItems=False, user=user, level=AccessType.ADMIN))
+					return SSRFolderModel().setAccessList(
+							folder, access, save=True, recurse=recurse, user=user,
+							progress=ctx, setPublic=public, publicFlags=publicFlags)
 def load(info):
 	girderRoot = info['serverRoot']
 	info['apiRoot'].SSR = SSR()

@@ -17,28 +17,31 @@ import PanelContent from './views/PanelContent';
 import CollectionModel from 'girder/models/CollectionModel';
 
 var App = GirderApp.extend({
-
+    
     initialize(settings){
-        restRequest({
-            url:'collection',
-            data:{'text':'SSR Project'}
-        }).then(_.bind((res)=>{
-            this._started = false;
-            settings = settings || {};
-            this.SSR_ProjectCollection = new CollectionModel();
-            this.SSR_ProjectCollection = this.SSR_ProjectCollection.set(res[0])
-            this.contactEmail = settings.contactEmail || null;
-            this.brandName = settings.brandName || null;
-            this.bannerColor = settings.bannerColor || null;
-            this.registrationPolicy = settings.registrationPolicy || null;
-            this.enablePasswordLogin = _.has(settings, 'enablePasswordLogin') ? settings.enablePasswordLogin : true;
-            if (settings.start === undefined || settings.start) {
-                this.start();
-            }
-        },this))
+        // restRequest({
+        //     url:'collection',
+        //     data:{'text':'SSR Project'}
+        // }).then(_.bind((res)=>{
+        this._started = false;
+        settings = settings || {};
+        // this.SSR_ProjectCollection = new CollectionModel();
+        // this.SSR_ProjectCollection = this.SSR_ProjectCollection.set(res[0])
+        this.contactEmail = settings.contactEmail || null;
+        this.brandName = settings.brandName || null;
+        this.bannerColor = settings.bannerColor || null;
+        this.registrationPolicy = settings.registrationPolicy || null;
+        this.enablePasswordLogin = _.has(settings, 'enablePasswordLogin') ? settings.enablePasswordLogin : true;
+        if (settings.start === undefined || settings.start) {
+            this.start();
+        }
+        // },this))
     },
     render() {
-        this.$el.html(layoutTemplate());
+        let d = new Date();
+        this.$el.html(layoutTemplate({
+            footer: d.getFullYear()
+        }));
 
         this.ssrHeader = new HeaderView({
             el: this.$('#g-app-header-container'),
@@ -46,7 +49,6 @@ var App = GirderApp.extend({
             settings: this.settings
         }).render();
 
-        console.log(getCurrentUser())
         if(getCurrentUser()){
             if (this.panelContentView) {
                 this.panelContentView.destroy();
@@ -56,7 +58,6 @@ var App = GirderApp.extend({
                 el: this.$('#g-app-body-container'),
                 parentView: this,
                 brandName: this.brandName,
-                SSR_ProjectCollection: this.SSR_ProjectCollection
             });
 
             this.panelContentView.render();

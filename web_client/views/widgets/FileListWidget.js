@@ -82,6 +82,7 @@ var FileListWidget = View.extend({
         this.collection.altUrl = 'item/' +
             (settings.itemId || settings.item.get('_id')) + '/files';
         this.collection.append = true; // Append, don't replace pages
+
         this.collection.on('g:changed', function () {
             this.render();
             this.trigger('g:changed');

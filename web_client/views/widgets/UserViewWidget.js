@@ -97,15 +97,15 @@ var UserView = View.extend({
         }
     },
     render: function () {
-        this.$el.html(UserPageTemplate({
-            user: this.model,
-            AccessType: AccessType
-        }));
+        // this.$el.html(UserPageTemplate({
+        //     user: this.model,
+        //     AccessType: AccessType
+        // }));
         if (!this.hierarchyWidget) {
-            console.log(this.$('.g-user-hierarchy-container'));
+            // console.log(this.$('.g-user-hierarchy-container'));
             // The HierarchyWidget will self-render when instantiated
             this.hierarchyWidget = new HierarchyWidget({
-                el: this.$('.g-user-hierarchy-container'),
+                el: this.$el,
                 parentModel: this.folder || this.model,
                 upload: this.upload,
                 folderAccess: this.folderAccess,
@@ -157,8 +157,6 @@ var UserView = View.extend({
      * an arbitrary set of extra parameters.
      */
     fetchAndInit: function (userId, params) {
-        console.log(params || {});
-
         var user = new UserModel();
         user.set({
             _id: userId

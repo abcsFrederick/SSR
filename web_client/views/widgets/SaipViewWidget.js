@@ -1,8 +1,8 @@
 import View from 'girder/views/View';
 import router from '../../router';
 import events from '../../events';
-import SAIPHierarchyBreadcrumbView from 'girder_plugins/SAIP/views/SAIPHierarchyBreadcrumbView';
-import SAIPProjectsView from 'girder_plugins/SAIP/views/SAIPProjects';
+import SAIPHierarchyBreadcrumbView from 'girder_plugins/Archive/views/SAIPHierarchyBreadcrumbView';
+import SAIPProjectsView from 'girder_plugins/Archive/views/SAIPProjects';
 import { restRequest } from 'girder/rest';
 import { fetchCurrentUser } from 'girder/auth';
 import SAIPTemplates from '../../templates/widgets/dsSAIP.pug';

@@ -1,36 +1,51 @@
 
-.col-md-2.g-ds-nav-container
+.g-ds-nav-container
 	.g-global-nav-main
 		//- .sidebar.sidebar-header 
 		//- 	h4 Data Source
 
-		ul.list.components.g-global-nav
-			li.g-global-nav-li
-				a.g-nav-link.ds-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
-					i.icon-download-cloud
-					span SAIP
-					i.icon-left-dir
-					i.icon-right-dir
+		ul.list.components.g-global-nav#datasourceNav
+			.datasourceNavPanel.panel
+				li.g-global-nav-li(data-toggle="collapse", 
+            data-target='#SAIPArch', 
+            data-parent="#datasourceNav")
+					a.g-nav-link.ds-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
+						i.icon-download-cloud
+						span SAIP
+						//- i.icon-left-dir
+						//- i.icon-right-dir
+				.dataSourceArch#SAIPArch.collapse
+					//- p SAIP
 				//- ul.collapse.list-unstyled#projects
 				//- 	.g-hierarchy-breadcrumb-bar
 				//- 	.g-folder-list-container
 
 			if SSR_Project.id
-				li.g-global-nav-li
-					a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id g-name='dsSSRProject' g-target='dsSSRProject') 
-						i.icon-file-archive
-						span #{SSR_Project.get('name')}
-						i.icon-left-dir
-						i.icon-right-dir
+				.datasourceNavPanel.panel
+					li.g-global-nav-li(data-toggle="collapse", 
+            data-target='#SSRArch', 
+            data-parent="#datasourceNav")
+						a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id g-name='dsSSRProject' g-target='dsSSRProject') 
+							i.icon-file-archive
+							span #{SSR_Project.get('name')}
+							//- i.icon-left-dir
+							//- i.icon-right-dir
+					.dataSourceArch#SSRArch.collapse
+						//- p SSR
 				//- ul.collapse.list-unstyled#filesystem
 
 			if user.id
-				li.g-global-nav-li
-					a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers') 
-						i.icon-edit
-						span #{user.name()}
-						i.icon-left-dir
-						i.icon-right-dir
+				.datasourceNavPanel.panel
+					li.g-global-nav-li(data-toggle="collapse", 
+            data-target='#USERArch', 
+            data-parent="#datasourceNav")
+						a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers') 
+							i.icon-edit
+							span #{user.name()}
+							//- i.icon-left-dir
+							//- i.icon-right-dir
+					.dataSourceArch#USERArch.collapse
+						//- p USER
 				//- ul.collapse.list-unstyled#girder
 				//- 	.ds-Girder-Container
 
@@ -40,13 +55,14 @@
 				a View
 				//- a#goWorkFlow WorkFlow
 				//- a#updateFile updateFile
-
-
+	.s-nav-siderBar
+		span.hideBar
 //- button#sidebarCollapse
 		span
 			a.icon-left-dir
-.selectionDom.col-md-4
-.visualizer.col-md-10
+
+.selectionDom
+.ssrVisualizer
 
 //- #PreviewSelection.modal
 //- 	.modal-content(style='width:40%')

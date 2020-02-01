@@ -854,7 +854,7 @@ class Folder(AccessControlledModel):
         progress.update(increment=1, message='Updating ' + doc['name'])
         if setPublic is not None:
             self.setPublic(doc, setPublic, save=False)
-
+            print doc
         if publicFlags is not None:
             doc = self.setPublicFlags(doc, publicFlags, user=user, save=False, force=force)
 

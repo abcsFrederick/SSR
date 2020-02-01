@@ -77,6 +77,7 @@ var imageActions = View.extend({
               }
           });
       }
+      console.log('bug console');
       $('.image_name').html(ImageNameWidget({
 
         allImagesName:this.allImagesName,

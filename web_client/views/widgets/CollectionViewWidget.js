@@ -4,7 +4,7 @@ import _ from 'underscore';
 import AccessWidget from 'girder/views/widgets/AccessWidget';
 import CollectionModel from 'girder/models/CollectionModel';
 import EditCollectionWidget from 'girder/views/widgets/EditCollectionWidget';
-import FolderModel from 'girder/models/FolderModel';
+import FolderModel from '../../models/FolderModel';
 import HierarchyWidget from './userFoldersWidget';
 import router from 'girder/router';
 import View from 'girder/views/View';
@@ -47,8 +47,14 @@ var CollectionView = View.extend({
         if (settings.collection) {
             this.model = settings.collection;
 
+            console.log('50');
+            console.log(settings);
+            console.log(settings.folderId);
             if (settings.folderId) {
+
                 this.folder = new FolderModel();
+                console.log('53');
+                console.log(this.folder);
                 this.folder.set({
                     _id: settings.folderId
                 }).on('g:fetched', function () {
@@ -89,16 +95,17 @@ var CollectionView = View.extend({
     },
 
     render: function () {
-        this.$el.html(CollectionPageTemplate({
-            collection: this.model,
-            AccessType: AccessType,
-            renderMarkdown: renderMarkdown
-        }));
-
+        // this.$el.html(CollectionPageTemplate({
+        //     collection: this.model,
+        //     AccessType: AccessType,
+        //     renderMarkdown: renderMarkdown
+        // }));
+        console.log('this.folder, breadcrumbs:');
+        console.log(this.folder);
         if (!this.hierarchyWidget) {
             // The HierarchyWidget will self-render when instantiated
             this.hierarchyWidget = new HierarchyWidget({
-                el: this.$('.g-collection-hierarchy-container'),
+                el: this.$el,
                 parentModel: this.folder || this.model,
                 upload: this.upload,
                 folderAccess: this.folderAccess,

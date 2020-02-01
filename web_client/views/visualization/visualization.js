@@ -22,6 +22,7 @@ var visualization = View.extend({
       restRequest({
         url: 'user'
       }).done(_.bind(function(res){
+        console.log(res)
         this.$el.html(VisualizationTemplate({
           users: res
         }))
@@ -30,8 +31,9 @@ var visualization = View.extend({
       restRequest({
         url: 'user/me'
       }).done(_.bind(function(res){
+        console.log(res)
         this.$el.html(VisualizationTemplate({
-          users: res
+          users: [res]
         }))
       },this))
     }

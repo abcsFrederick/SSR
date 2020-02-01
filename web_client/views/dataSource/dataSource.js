@@ -12,7 +12,7 @@ import FileModel from 'girder/models/FileModel';
 import UserModel from 'girder/models/UserModel';
 import HierarchyWidget from 'girder/views/widgets/HierarchyWidget';
 // import SAIPHierarchyBreadcrumbView from 'girder_plugins/SAIP/views/SAIPHierarchyBreadcrumbView';
-import SAIPProjectsView from 'girder_plugins/SAIP/views/SAIPProjects';
+import SAIPProjectsView from 'girder_plugins/Archive/views/SAIPProjects';
 import FolderCollection from 'girder/collections/FolderCollection';
 import ItemCollection from 'girder/collections/ItemCollection';
 import FileCollection from 'girder/collections/FileCollection';
@@ -34,24 +34,30 @@ import ImageActions from './imageActions';
 
 var dataSource =  View.extend({
 	events:{
+    'click .s-nav-siderBar':'_collaspeSideBar',
 		'click .ds-Girder':function(e){
 
-      this.deactivateAll();
+      // this.deactivateAll();
       let link = $(e.currentTarget);
-      if($(e.target).hasClass('icon-left-dir')){
-        $('.ds-Girder > .icon-right-dir').show();
-        $('.ds-Girder > .icon-left-dir').hide();
-        $('.selectionDom').css('display','none');
-        link.parent().addClass('g-active');
-      }
-      else if($(e.target).hasClass('icon-right-dir')){
-        $('.ds-Girder > .icon-left-dir').show();
-        $('.ds-Girder > .icon-right-dir').hide();
-        $('.selectionDom').css('display','inline-block');
-        $('.selectionDom').css('height','inherit');
-        link.parent().addClass('g-active');
-      }
-      else{
+      // if(link.parent().hasClass('g-active')){
+      //   link.parent().removeClass('g-active');
+      // }else{
+      //   link.parent().addClass('g-active');
+      // }
+      // if($(e.target).hasClass('icon-left-dir')){
+      //   $('.ds-Girder > .icon-right-dir').show();
+      //   $('.ds-Girder > .icon-left-dir').hide();
+      //   $('.selectionDom').css('display','none');
+      //   link.parent().addClass('g-active');
+      // }
+      // else if($(e.target).hasClass('icon-right-dir')){
+      //   $('.ds-Girder > .icon-left-dir').show();
+      //   $('.ds-Girder > .icon-right-dir').hide();
+      //   $('.selectionDom').css('display','inline-block');
+      //   $('.selectionDom').css('height','inherit');
+      //   link.parent().addClass('g-active');
+      // }
+      // else{
         let curRoute = Backbone.history.fragment,
             routeParts = splitRoute(curRoute),
             queryString = parseQueryString(routeParts.name);
@@ -61,45 +67,50 @@ var dataSource =  View.extend({
             }
         // router.enabled(1);
         // console.log(curRoute);
-        router.navigate('ds_user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
+        router.navigate('view/user/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
         // $('.selectionDom').collapse('toggle');
         
         // if(link.parent().hasClass('g-active')){
         //   link.parent().removeClass('g-active');
         // }else{
-          $('.ds-Girder > .icon-right-dir').hide();
-          $('.ds-Girder > .icon-left-dir').show();
-          link.parent().addClass('g-active');
+          // $('.ds-Girder > .icon-right-dir').hide();
+          // $('.ds-Girder > .icon-left-dir').show();
+          // link.parent().addClass('g-active');
         // }
         // console.log(link.parent().hasClass('g-active'))
-        if(link.parent().hasClass('g-active')){
-          $('.selectionDom').css('display','inline-block');
-          $('.selectionDom').css('height','inherit');
-        }else{
-          $('.selectionDom').css('display','none');
-        }
-      }
+        // if(link.parent().hasClass('g-active')){
+        //   $('.selectionDom').css('display','inline-block');
+        //   $('.selectionDom').css('height','inherit');
+        // }else{
+        //   $('.selectionDom').css('display','none');
+        // }
+      // }
 			
       
 		},
     'click .ds-Filesystem':function(e){
  
-      this.deactivateAll();
+      // this.deactivateAll();
       let link = $(e.currentTarget);
-      if($(e.target).hasClass('icon-left-dir')){
-        $('.ds-Filesystem > .icon-right-dir').show();
-        $('.ds-Filesystem > .icon-left-dir').hide();
-        $('.selectionDom').css('display','none');
-        link.parent().addClass('g-active');
-      }
-      else if($(e.target).hasClass('icon-right-dir')){
-        $('.ds-Filesystem > .icon-left-dir').show();
-        $('.ds-Filesystem > .icon-right-dir').hide();
-        $('.selectionDom').css('display','inline-block');
-        $('.selectionDom').css('height','inherit');
-        link.parent().addClass('g-active');
-      }
-      else{
+      // if(link.parent().hasClass('g-active')){
+      //   link.parent().removeClass('g-active');
+      // }else{
+      //   link.parent().addClass('g-active');
+      // }
+      // if($(e.target).hasClass('icon-left-dir')){
+      //   $('.ds-Filesystem > .icon-right-dir').show();
+      //   $('.ds-Filesystem > .icon-left-dir').hide();
+      //   $('.selectionDom').css('display','none');
+      //   link.parent().addClass('g-active');
+      // }
+      // else if($(e.target).hasClass('icon-right-dir')){
+      //   $('.ds-Filesystem > .icon-left-dir').show();
+      //   $('.ds-Filesystem > .icon-right-dir').hide();
+      //   $('.selectionDom').css('display','inline-block');
+      //   $('.selectionDom').css('height','inherit');
+      //   link.parent().addClass('g-active');
+      // }
+      // else{
         let curRoute = Backbone.history.fragment,
             routeParts = splitRoute(curRoute),
             queryString = parseQueryString(routeParts.name);
@@ -108,39 +119,43 @@ var dataSource =  View.extend({
                 unparsedQueryString = '?' + unparsedQueryString;
             }
         // router.enabled(1);
-        // router.navigate('ds_collections' + unparsedQueryString, {trigger: true});
-        router.navigate('ds_collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
+        // router.navigate('view/collections' + unparsedQueryString, {trigger: true});
+        router.navigate('view/collection/' + link.attr('g-id') + unparsedQueryString, {trigger: true});
 
-        $('.ds-Filesystem > .icon-left-dir').show();
-        link.parent().addClass('g-active');
-        if(link.parent().hasClass('g-active')){
-          $('.selectionDom').css('display','inline-block');
-          $('.selectionDom').css('height','inherit');
-        }else{
-          $('.selectionDom').css('display','none');
-        }
-      }
+      //   $('.ds-Filesystem > .icon-left-dir').show();
+      //   link.parent().addClass('g-active');
+      //   if(link.parent().hasClass('g-active')){
+      //     $('.selectionDom').css('display','inline-block');
+      //     $('.selectionDom').css('height','inherit');
+      //   }else{
+      //     $('.selectionDom').css('display','none');
+      //   }
+      // }
     },
     'click .ds-SAIP':function(e){
 
-      this.deactivateAll();
+      // this.deactivateAll();
 
       let link = $(e.currentTarget);
-
-      if($(e.target).hasClass('icon-left-dir')){
-        $('.ds-SAIP > .icon-right-dir').show();
-        $('.ds-SAIP > .icon-left-dir').hide();
-        $('.selectionDom').css('display','none');
-        link.parent().addClass('g-active');
-      }
-      else if($(e.target).hasClass('icon-right-dir')){
-        $('.ds-SAIP > .icon-left-dir').show();
-        $('.ds-SAIP > .icon-right-dir').hide();
-        $('.selectionDom').css('display','inline-block');
-        $('.selectionDom').css('height','inherit');
-        link.parent().addClass('g-active');
-      }
-      else{
+      // if(link.parent().hasClass('g-active')){
+      //   link.parent().removeClass('g-active');
+      // }else{
+      //   link.parent().addClass('g-active');
+      // }
+      // if($(e.target).hasClass('icon-left-dir')){
+      //   $('.ds-SAIP > .icon-right-dir').show();
+      //   $('.ds-SAIP > .icon-left-dir').hide();
+      //   $('.selectionDom').css('display','none');
+      //   link.parent().addClass('g-active');
+      // }
+      // else if($(e.target).hasClass('icon-right-dir')){
+      //   $('.ds-SAIP > .icon-left-dir').show();
+      //   $('.ds-SAIP > .icon-right-dir').hide();
+      //   $('.selectionDom').css('display','inline-block');
+      //   $('.selectionDom').css('height','inherit');
+      //   link.parent().addClass('g-active');
+      // }
+      // else{
         let curRoute = Backbone.history.fragment,
             routeParts = splitRoute(curRoute),
             queryString = parseQueryString(routeParts.name);
@@ -149,17 +164,17 @@ var dataSource =  View.extend({
                 unparsedQueryString = '?' + unparsedQueryString;
             }
         // router.enabled(1);
-        router.navigate('ds_saip' + unparsedQueryString, {trigger: true});
+        router.navigate('view/saip' + unparsedQueryString, {trigger: true});
 
-        $('.ds-SAIP > .icon-left-dir').show();
-        link.parent().addClass('g-active');
-        if(link.parent().hasClass('g-active')){
-          $('.selectionDom').css('display','inline-block');
-          $('.selectionDom').css('height','inherit');
-        }else{
-          $('.selectionDom').css('display','none');
-        }
-      }
+      //   $('.ds-SAIP > .icon-left-dir').show();
+      //   link.parent().addClass('g-active');
+      //   if(link.parent().hasClass('g-active')){
+      //     $('.selectionDom').css('display','inline-block');
+      //     $('.selectionDom').css('height','inherit');
+      //   }else{
+      //     $('.selectionDom').css('display','none');
+      //   }
+      // }
     },
 		'click #sidebarCollapse':'dataSourceCollapse',
 		'click #preview':'prepareInput',
@@ -191,7 +206,7 @@ var dataSource =  View.extend({
 		this.totalSeriesPathInit=[];
 		this.totalSeriesIdInit=[];
 		this.totalSeriesIdentityInit=[];
-    this.controlPanel = setting.controlPanel;
+    // this.controlPanel = setting.controlPanel;
     this.SSR_ProjectCollection = setting.SSR_ProjectCollection
 		this.currentUser = setting.currentUser;
 		this.itemsCollection = new ItemCollection();
@@ -210,6 +225,7 @@ var dataSource =  View.extend({
 		// this.listenTo(events,'query:PreviewFile', this.PreviewFile);
 		// this.listenTo(events,'query:PreviewFileAndSEG', this.PreviewFile);
 
+    this.listenTo(this.SSR_ProjectCollection, "change", this._addSSRProjectNav);
     this.listenTo(events, 'query:mode', this.changeMode);
 		this.listenTo(events, 'preview:forward', this.forward);
 		this.listenTo(events, 'preview:backward', this.backward);
@@ -234,20 +250,17 @@ var dataSource =  View.extend({
     this.listenTo(events, 'ami:removeSelectedAnnotation', this.removeSelectedAnnotation);
     this.listenTo(events, 'ds:saveAnnotationAlert', this.saveAnnotationAlert);
 
-
-    // console.log('query:mode')
-    
 	},
 	navigateTo: function (view, settings, opts) {
       // router.enabled(1);
 
-      $('#girder').collapse()
       settings = settings || {};
       opts = opts || {};
 
       if (view) {
         if(settings.viewName=='dsUsersView')
-        {
+        { 
+
           if (this.dsUserView) {
               this.dsUserView.destroy();
           }
@@ -260,7 +273,7 @@ var dataSource =  View.extend({
           settings = _.extend(settings, {
               parentView: this,
               brandName: this.brandName,
-              baseRoute:'ds_user'
+              baseRoute:'view/user'
           });
 
           /* We let the view be created in this way even though it is
@@ -271,6 +284,9 @@ var dataSource =  View.extend({
           if (opts.renderNow) {
               this.dsUserView.render();
           }
+          $('#SAIPArch').collapse('hide');
+          $('#SSRArch').collapse('hide');
+          $('#USERArch').collapse('show');
         }
         if(settings.viewName=='dsSSRProjectView')
         {
@@ -286,7 +302,7 @@ var dataSource =  View.extend({
           settings = _.extend(settings, {
               parentView: this,
               brandName: this.brandName,
-              baseRoute:'ds_collection'
+              baseRoute:'view/collection'
           });
 
           /* We let the view be created in this way even though it is
@@ -297,6 +313,9 @@ var dataSource =  View.extend({
           if (opts.renderNow) {
               this.dsCollectionsView.render();
           }
+          $('#SAIPArch').collapse('hide');
+          $('#SSRArch').collapse('show');
+          $('#USERArch').collapse('hide');
         }
 
         if(settings.viewName=='dsSAIPProjectView')
@@ -320,6 +339,9 @@ var dataSource =  View.extend({
           // if (opts.renderNow) {
           //     this.dsSaipView.render();
           // }
+          $('#SAIPArch').collapse('show');
+          $('#SSRArch').collapse('hide');
+          $('#USERArch').collapse('hide');
         }
         this.selectForView(settings.viewName)
         // console.log(settings.viewName)
@@ -412,6 +434,8 @@ var dataSource =  View.extend({
     });
   },
 	PreviewFileItem(e){
+    let curRoute = Backbone.history.fragment,
+    nav = splitRoute(curRoute).base.split('/')[0];
 		// if(router.getQuery('step') === 'dataSource'){
   //     console.log('true');
   //   }else{
@@ -419,10 +443,11 @@ var dataSource =  View.extend({
   //   }
     // console.log('412');
     // console.log(router.flag)
-    if(router.flag || parseQueryString(splitRoute(Backbone.history.fragment).name)['step'] === 'View'){
+    if(nav === 'view'){
+    // if(router.flag || parseQueryString(splitRoute(Backbone.history.fragment).name)['step'] === 'View'){
       this.currentImageId = e;
-      // if(this._openId !== this.currentImageId || this._mode !== this.mode){
-        // this._mode = this.mode;
+      if(this._openId !== this.currentImageId || this._mode !== this.mode){
+        this._mode = this.mode;
   			this._openId=this.currentImageId;
   	  	this.getImageFilesFromItemPromise(e).then((files)=>{
   	  		// console.log('oriFile id ')
@@ -445,7 +470,7 @@ var dataSource =  View.extend({
               }
   	        }else{
   	          this.amiDisplayPreview = new AmiViewerSEG({
-  	              el:'.visualizer',
+  	              el:'.ssrVisualizer',
   	              parentView:this
   	          });
   	        }
@@ -491,6 +516,7 @@ var dataSource =  View.extend({
                   if(this.imageActions){
                     this.imageActions.destroy();
                   }
+                  
                   this.imageActions = new ImageActions({
                     el: $('#Actions'),
                     mode: this.mode,
@@ -506,14 +532,14 @@ var dataSource =  View.extend({
                   }).render();
                   // console.log(this.amiDisplayPreview.edit);
                   this.amiDisplayPreview.annotationSelector(items, this.mode, this.editSegmentationFolderId, this.labelColor, this.cursorSize);
-                  console.log('507');
-                  console.log(this.amiDisplayPreview.edit);
+                  // console.log('507');
+                  // console.log(this.amiDisplayPreview.edit);
 
   			      	}
   			      },this))
   					});
   	  	});
-  	  // }
+  	  }
     }
 	},
   editSegmentationFolderId(editSegmentationFolderId){
@@ -787,8 +813,8 @@ var dataSource =  View.extend({
                   // console.log(folderModel.get('_id'))
                   // router.enabled(1);
                   router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
-                  this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
-                  // console.log(this.controlPanel)
+                  // this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+
                   /*workSpaceFolder should receive `input images' parent folder id` here*/
                   // router.setQuery('workSpaceFolder', folderModel.get('_id'), {trigger: true})
 								},this))
@@ -842,7 +868,7 @@ var dataSource =  View.extend({
               this.itemsCollection.set(this.itemListsFromFolder);
               // router.enabled(1);
               router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
-              this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+              // this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
             },this))
           },this))
             /*workSpaceFolder should receive input `workspace folder id` here*/
@@ -878,7 +904,7 @@ var dataSource =  View.extend({
     Green GO is click
   */
 	previewSelection(){
-    // console.log('777');
+
     // console.log(this.itemsCollection.models);
 		if(this.fromFilesystem){
 			// router.enabled(1);
@@ -936,18 +962,17 @@ var dataSource =  View.extend({
             this.itemsCollection.set(this.itemListsFromFolder);
             // console.log(folderModel.get('_id'))
             // router.enabled(1);
+            router.setQuery('mode','view');
             router.setQuery('filesystemFolder', folderModel.get('_id'));
-            this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
-            router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'));
-            router.setQuery('mode','view', {trigger: true, replace: true});
+            // this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+            router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true, replace: true});
+            
             this.mode = 'view';
-            // console.log(this.controlPanel)
             /*workSpaceFolder should receive `input images' parent folder id` here*/
             // router.setQuery('workSpaceFolder', folderModel.get('_id'), {trigger: true})
           },this))
       }
       
-
     }
     else if(this.fromSaipArchive){
       // router.enabled(1);
@@ -968,12 +993,20 @@ var dataSource =  View.extend({
           this.itemsCollection.set(this.itemListsFromFolder);
           // router.enabled(1);
           router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
-          this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
+          // this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
           router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true});
         },this))
       },this))
     }
-    
+    else{
+      events.trigger('g:alert', {
+          type: 'warning',
+          text: 'Please select a dataset to visualize',
+          icon: 'info',
+          timeout: 5000
+      });
+      return;
+    }
     this.selectorSelection();
   },
 
@@ -1289,22 +1322,22 @@ var dataSource =  View.extend({
     {
       // console.log(this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']'))
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
-      $('.ds-Girder > .icon-left-dir').show();
+      // $('.ds-Girder > .icon-left-dir').show();
     }
     if(viewName == 'dsSSRProjectView')
     {
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
-      $('.ds-Filesystem > .icon-left-dir').show();
+      // $('.ds-Filesystem > .icon-left-dir').show();
     }
     if(viewName == 'dsSAIPProjectView')
     {
       this.$('.g-ds-nav-container [g-name='+viewName.slice(0,-4)+']').parent().addClass('g-active');
-      $('.ds-SAIP > .icon-left-dir').show();
+      // $('.ds-SAIP > .icon-left-dir').show();
     }
   },
   deactivateAll(){
-    this.$('.icon-left-dir').hide();
-    this.$('.icon-right-dir').hide();
+    // this.$('.icon-left-dir').hide();
+    // this.$('.icon-right-dir').hide();
     this.$('.g-global-nav-li').removeClass('g-active');
   },
   updateFile(targetFileId){
@@ -1317,24 +1350,33 @@ var dataSource =  View.extend({
       // var arr_test = new Uint8Array([32,31]);
       this.amiDisplayPreview.stack2.unPack(this.amiDisplayPreview.stack2.rawData[0]);
 
+
       // let arr = this.amiDisplayPreview.stack2.rawData[0];
       let arr = this.amiDisplayPreview.stack2.oriRawData[0];
       // var arr3 = this.amiDisplayPreview.stack2.frame[26].pixelData;
 
-
       let nrrdHeaderInfo = this.amiDisplayPreview.reconstructNrrdHeader;
       // window.nrrdHeaderInfo = nrrdHeaderInfo;
 
+
+      let headerArray, entire;
+      if(arr.BYTES_PER_ELEMENT === 1){
+        headerArray = this.nrrdHeaderToUint8Array(nrrdHeaderInfo);
+        entire = new Uint8Array(headerArray.length + arr.length);
+      }else if(arr.BYTES_PER_ELEMENT === 2){
+        headerArray = this.nrrdHeaderToUint16Array(nrrdHeaderInfo);
+        entire = new Uint16Array(headerArray.length + arr.length);
+      }
       // let headerUint16Array = this.nrrdHeaderToUint16Array(nrrdHeaderInfo);
-      let headerUint8Array = this.nrrdHeaderToUint8Array(nrrdHeaderInfo);
+      // let headerUint8Array = this.nrrdHeaderToUint8Array(nrrdHeaderInfo);
       
       // let entire = new Uint16Array(headerUint16Array.length + arr.length);
-      let entire = new Uint8Array(headerUint8Array.length + arr.length);
+      // let entire = new Uint8Array(headerUint8Array.length + arr.length);
 
       // entire.set(headerUint16Array);
       // entire.set(arr, headerUint16Array.length);
-      entire.set(headerUint8Array);
-      entire.set(arr, headerUint8Array.length);
+      entire.set(headerArray);
+      entire.set(arr, headerArray.length);
 
       // var files = document.getElementById('filesTest').files;
       // window.arr = arr;
@@ -1348,7 +1390,7 @@ var dataSource =  View.extend({
       // console.log(arr3);
       // console.log(entire);
       // var blob = new Blob([headerUint16Array.buffer], {type: ''});
-      var blob = new Blob([headerUint8Array.buffer], {type: ''});
+      var blob = new Blob([headerArray.buffer], {type: ''});
       // console.log(blob)
       // var arrayBuffer;
       // var fileReader = new FileReader();
@@ -1356,7 +1398,7 @@ var dataSource =  View.extend({
       //     console.log(event.target.result);
       // };
       // fileReader.readAsArrayBuffer(files[0]['slice'](0,600));
-      console.log(file)
+      // console.log(file)
       this.targetTestFile.updateContents(entire)
     })
   },
@@ -1419,6 +1461,27 @@ var dataSource =  View.extend({
   },
   setLabelColor(e){
     this.labelColor = e;
+  },
+  _collaspeSideBar(e){
+
+    $(e.target).children()[0].classList.toggle('collapsein'); 
+    if($(e.target).children().hasClass('collapsein')){
+      this.$('.g-ds-nav-container').css('left','calc(-40vw + 20px)');
+      this.$('.g-ds-nav-container').css('marginLeft','0vw');
+      this.$('.ssrVisualizer').css('width','calc(100vw - 20px)');
+      this.$('.ssrVisualizer').css('marginLeft','0');
+    }else{
+      this.$('.g-ds-nav-container').css('left','0vw');
+      this.$('.g-ds-nav-container').css('marginLeft','0vw');
+      this.$('.ssrVisualizer').css('width','60vw');
+      this.$('.ssrVisualizer').css('marginLeft','0');
+    }
+  },
+  _addSSRProjectNav(e){
+    this.$el.html(dataSourceTemplate({
+      SSR_Project:this.SSR_ProjectCollection,
+      user:getCurrentUser()
+    }));
   }
 })
 

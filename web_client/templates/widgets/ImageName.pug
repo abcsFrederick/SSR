@@ -13,3 +13,8 @@ ul#currentImage.dropdown-menu(role='menu')
         each name,index in allImagesName
             li(id=name.id).dropdown-submenu.imageSelected
                     a #{name.get('name')}
+    else
+        each name in allImagesName
+            //- - console.log(name)
+            li(id=name.id).dropdown-submenu.imageSelected
+                    a #{name.get('name')}

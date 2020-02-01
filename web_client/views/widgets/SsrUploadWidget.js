@@ -198,7 +198,8 @@ var UploadWidget = View.extend({
             .html(`<i class="icon-docs"/> ${this._browseText}`);
 
         var dataTransfer = e.originalEvent.dataTransfer;
-        console.log(e)
+        window.test = e;
+        console.log(e);
         // Require all dropped items to be files
         if (!_.every(dataTransfer.items, (item) => this._isFile(item))) {
             this.$('.g-upload-error-message').html('Only files may be uploaded.');
@@ -595,8 +596,9 @@ var UploadWidget = View.extend({
         let fields = {name:imageSetName,description:""};
         let options = {};
         var folder = new FolderModel();
+
         folder.set(_.extend(fields, {
-            parentType: this.parent.resourceName,
+            parentType: this.parent.resourceName === 'SSR/folder' ? 'folder' : this.parent.resourceName,
             parentId: this.parent.get('_id')
         }));
         folder.on('g:saved', function (res) {
@@ -785,12 +787,12 @@ var UploadWidget = View.extend({
                     for(let a=0;a<newFilesList.length;a++)
                     {
                         let subfolderName = newFilesList[a].webkitRelativePath.split('/')[1];
-                        if(allSubfolders.indexOf(subfolderName)=== -1){
+                        if(allSubfolders.indexOf(subfolderName) === -1){
                             allSubfolders.push(subfolderName);
                         }
                     }
 
-                    this.labelFolderName=$('#potentialLabelName').val();
+                    this.labelFolderName = $('#potentialLabelName').val();
                     // Has segmentation folder
                     // ---Project1
                     //     --Original
@@ -799,16 +801,16 @@ var UploadWidget = View.extend({
                     //    --Segmentation
                     //         -aSeg.nrrd
                     //         -bSeg.nrrd
-                    if(allSubfolders.indexOf(this.labelFolderName)!==-1&&allSubfolders.length<3){
+                    if (allSubfolders.indexOf(this.labelFolderName) !== -1 && allSubfolders.length < 3) {
 
                         let oriFilesList = [];
                         let segFilesList = [];
-                        for(let a=0;a<newFilesList.length;a++){
-                            if(newFilesList[a].webkitRelativePath.split('/')[1]===this.labelFolderName)
+                        for (let a=0 ;a < newFilesList.length ; a++){
+                            if (newFilesList[a].webkitRelativePath.split('/')[1] === this.labelFolderName)
                             {
                                 segFilesList.push(newFilesList[a]);
                             }
-                            if(newFilesList[a].webkitRelativePath.split('/')[1]!==this.labelFolderName)
+                            if (newFilesList[a].webkitRelativePath.split('/')[1] !== this.labelFolderName)
                             {
                                 oriFilesList.push(newFilesList[a]);
                             }
@@ -917,7 +919,7 @@ var UploadWidget = View.extend({
     setLabelName(e){
         this.labelFolderName = e.currentTarget.text;
     },
-    createFolder: function (fields,options) {
+    createFolder: function (fields, options) {
         var folder = new FolderModel();
         folder.set(_.extend(fields, options));
         folder.on('g:saved', function (res) {
@@ -934,7 +936,7 @@ var UploadWidget = View.extend({
             this.$('#g-' + err.responseJSON.field).focus();
         }, this).save();
     },
-    createItemsAndUploadFiles: function (fields,options,file,numOfFiles) {
+    createItemsAndUploadFiles: function (fields, options, file, numOfFiles) {
         var item = new ItemModel();
         item.set(_.extend(fields, options));
 
@@ -1006,7 +1008,7 @@ var UploadWidget = View.extend({
             this.$('#g-' + err.responseJSON.field).focus();
         }, this).save();
     },
-    createAnItemAndUploadFiles: function (fields,options,files) {
+    createAnItemAndUploadFiles: function (fields, options, files) {
         var item = new ItemModel();
         item.set(_.extend(fields, options));
 
