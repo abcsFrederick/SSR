@@ -205,17 +205,17 @@ function bindRoutes() {
 		//     });
 		// });
 
-		Router.route('qc/user/:id', 'user', function (userId, params) {
-				events.trigger('HeaderView:navigateTo', 'Link');
-				events.trigger('panelContent:navigateTo', 'Link');
-		    UserView.fetchAndInit(userId, {
-		    		viewName: 'qcUserView',
-						el: '#mappingUSERArch'
-		        // folderCreate: params.dialog === 'foldercreate',
-		        // dialog: params.dialog
-		    });
-		    // console.log(this)
-		});
+		// Router.route('qc/user/:id', 'user', function (userId, params) {
+		// 		events.trigger('HeaderView:navigateTo', 'Link');
+		// 		events.trigger('panelContent:navigateTo', 'Link');
+		//     UserView.fetchAndInit(userId, {
+		//     		viewName: 'qcUserView',
+		// 				el: '#mappingUSERArch'
+		//         // folderCreate: params.dialog === 'foldercreate',
+		//         // dialog: params.dialog
+		//     });
+		//     // console.log(this)
+		// });
 
 		Router.route('qc/user/:id/folder/:id', 'userFolder', function (userId, folderId, params) {
 		    events.trigger('HeaderView:navigateTo', 'Link');

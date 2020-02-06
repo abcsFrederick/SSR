@@ -44,10 +44,9 @@ class SSR(Resource):
 		self.route('GET',('segmentationCheckFolder',':originalFolderId'),self.segmentationCheckFolder)
 		self.route('PUT',(':targetFileId',':sourceFileId'),self.fileUpdate)
 		self.route('PUT', ('Visualizer',':jobId'),self.visualizerUpdate)
-		self.route('PUT',('segmentationLink',':originalItemId',':segmentationItemId'),self.segmentationLink)
+		# self.route('PUT',('segmentationLink',':originalItemId',':segmentationItemId'),self.segmentationLink)
 		self.route('PUT',('segmentationLinkEditing',':originalFolderId',':segmentationEditingFolderId'),self.segmentationLinkEditing)
 		# self.route('DELETE',('segmentationRemove',':originalItemId',':segmentationItemId'),self.segmentationRemove)
-		self.route('DELETE',('segmentationRemove',':originalFolderId',':segmentationFolderId'),self.segmentationRemove)
 		self.route('GET', ('folder',':id', 'access'), self.ssrGetFolderAccess)
 		self.route('PUT', ('folder',':id', 'access'), self.ssrUpdateFolderAccess)
 

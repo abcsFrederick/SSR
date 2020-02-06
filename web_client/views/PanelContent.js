@@ -60,9 +60,9 @@ var PanelContent = View.extend({
     if (this.View) {
       this.View.destroy();
     }
-    if (this.Link) {
-      this.Link.destroy();
-    }
+    // if (this.Link) {
+    //   this.Link.destroy();
+    // }
 
     this.Welcome = new FrontPageView({
       parentView: this,
@@ -80,12 +80,12 @@ var PanelContent = View.extend({
       currentUser: getCurrentUser()
     });
 
-    this.Link = new mappingSeg({
-      parentView:this,
-      el: $('#s-full-page-body-Link'),
-      currentUser: getCurrentUser(),
-      SSR_ProjectCollection: this.SSR_ProjectCollection || {},
-    });
+    // this.Link = new mappingSeg({
+    //   parentView:this,
+    //   el: $('#s-full-page-body-Link'),
+    //   currentUser: getCurrentUser(),
+    //   SSR_ProjectCollection: this.SSR_ProjectCollection || {},
+    // });
 
     if (this.Analysis) {
       this.Analysis.destroy();
