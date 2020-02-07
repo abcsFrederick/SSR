@@ -2,9 +2,8 @@ import View from 'girder/views/View';
 import panelContentLayout from '../templates/layout/panelContentLayout.pug';
 
 import FrontPageView from './layout/FrontPageView';
-import mappingSeg from './mappingSeg/mappingSeg'
 import dataSource from './dataSource/dataSource';
-import Task from 'girder_plugins/SSR_task/views/layouts/main';
+import Apps from 'girder_plugins/SSR_task/views/layouts/main';
 // import Workflow from './workflow/workflow';
 // import Visualization from './visualization/visualization';
 
@@ -54,45 +53,27 @@ var PanelContent = View.extend({
     if (this.Welcome) {
       this.Welcome.destroy();
     }
-    // if (this.controlPanel) {
-    //   this.controlPanel.destroy();
-    // }
     if (this.View) {
       this.View.destroy();
     }
-    // if (this.Link) {
-    //   this.Link.destroy();
-    // }
-
+    if (this.apps) {
+      this.apps.destroy();
+    }
     this.Welcome = new FrontPageView({
       parentView: this,
       el: $('#s-full-page-body-Welcome')
     });
 
-    // this.controlPanel = new SlicerPanelGroup({
-    //   parentView: this
-    // });
     this.View = new dataSource({
       parentView: this,
       el: $('#s-full-page-body-View'),
-      // controlPanel: this.controlPanel,
       SSR_ProjectCollection: this.SSR_ProjectCollection || {},
       currentUser: getCurrentUser()
     });
 
-    // this.Link = new mappingSeg({
-    //   parentView:this,
-    //   el: $('#s-full-page-body-Link'),
-    //   currentUser: getCurrentUser(),
-    //   SSR_ProjectCollection: this.SSR_ProjectCollection || {},
-    // });
-
-    if (this.Analysis) {
-      this.Analysis.destroy();
-    }
-    this.Analysis = new Task({
+    this.apps = new Apps({
       parentView: this,
-      // controlPanel: this.controlPanel,
+      SSR_ProjectCollection: this.SSR_ProjectCollection || {},
       el: $('#s-full-page-body-Analysis'),
       currentUser: getCurrentUser()
     }); 

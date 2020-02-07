@@ -14,14 +14,19 @@
                 label Segmentations:
                 select#selectSegmentation.selectpicker(required)
                   option 
-                  optgroup(label="Release")
                     each seg in segmentations
-                      if seg['baseParentType'] == 'collection'
-                        option(id=seg['_id']) #{seg.name}
-                  optgroup(label="Yours")
-                    each seg in segmentations
-                      if seg['baseParentType'] == 'user'
-                        option(id=seg['_id']) #{seg.name}
+                      if seg['_accessLevel'] > 0
+                        option(id=seg['segmentationId']) #{seg.linkName}
+                      else 
+                        option(id=seg['segmentationId']) NONO#{seg.linkName}
+                  //- optgroup(label="Release")
+                  //-   each seg in segmentations
+                  //-     if seg['baseParentType'] == 'collection'
+                  //-       option(id=seg['_id']) #{seg.name}
+                  //- optgroup(label="Yours")
+                  //-   each seg in segmentations
+                  //-     if seg['baseParentType'] == 'user'
+                  //-       option(id=seg['_id']) #{seg.name}
               //- .col-md-6
               //-   label Your own:
               //-   select#selectExistEditingSegmentation

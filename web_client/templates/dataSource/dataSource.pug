@@ -1,76 +1,34 @@
-
 .g-ds-nav-container
 	.g-global-nav-main
-		//- .sidebar.sidebar-header 
-		//- 	h4 Data Source
-
 		ul.list.components.g-global-nav#datasourceNav
 			.datasourceNavPanel.panel
-				li.g-global-nav-li(data-toggle="collapse", 
-            data-target='#SAIPArch', 
-            data-parent="#datasourceNav")
+				li.g-global-nav-li(data-toggle="collapse", data-target='#dataSAIPArch', data-parent="#datasourceNav")
 					a.g-nav-link.ds-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
 						i.icon-download-cloud
 						span SAIP
-						//- i.icon-left-dir
-						//- i.icon-right-dir
-				.dataSourceArch#SAIPArch.collapse
-					//- p SAIP
-				//- ul.collapse.list-unstyled#projects
-				//- 	.g-hierarchy-breadcrumb-bar
-				//- 	.g-folder-list-container
+				#dataSAIPArch.dataSourceArch.collapse
 
 			if SSR_Project.id
 				.datasourceNavPanel.panel
-					li.g-global-nav-li(data-toggle="collapse", 
-            data-target='#SSRArch', 
-            data-parent="#datasourceNav")
+					li.g-global-nav-li(data-toggle="collapse", data-target='#dataCollectionArch', data-parent="#datasourceNav")
 						a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id g-name='dsSSRProject' g-target='dsSSRProject') 
 							i.icon-file-archive
 							span #{SSR_Project.get('name')}
-							//- i.icon-left-dir
-							//- i.icon-right-dir
-					.dataSourceArch#SSRArch.collapse
-						//- p SSR
-				//- ul.collapse.list-unstyled#filesystem
+					#dataCollectionArch.dataSourceArch.collapse
 
 			if user.id
 				.datasourceNavPanel.panel
-					li.g-global-nav-li(data-toggle="collapse", 
-            data-target='#USERArch', 
-            data-parent="#datasourceNav")
-						a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers') 
+					li.g-global-nav-li(data-toggle="collapse", data-target='#dataUSERArch', data-parent="#datasourceNav")
+						a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers')
 							i.icon-edit
 							span #{user.name()}
-							//- i.icon-left-dir
-							//- i.icon-right-dir
-					.dataSourceArch#USERArch.collapse
-						//- p USER
-				//- ul.collapse.list-unstyled#girder
-				//- 	.ds-Girder-Container
+					#dataUSERArch.dataSourceArch.collapse
 
 		ul.viewButton(style='list-style: none;')
 			button.btn.btn-success#startView
 				i.icon-eye
 				a View
-				//- a#goWorkFlow WorkFlow
-				//- a#updateFile updateFile
 	.s-nav-siderBar
 		span.hideBar
-//- button#sidebarCollapse
-		span
-			a.icon-left-dir
-
 .selectionDom
 .ssrVisualizer
-
-//- #PreviewSelection.modal
-//- 	.modal-content(style='width:40%')
-//- 		.modal-header
-//- 			span.close &times;
-//- 			h2 Preview Option
-//- 		.modal-body
-			
-//- 		.modal-footer
-//- 			button.cancel.btn.btn-default Cancel
-//- 			button#processingPreview.btn.btn-success GO

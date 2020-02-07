@@ -12,7 +12,6 @@ import { restRequest } from 'girder/rest';
 import navTemplate from '../../templates/layout/nav.pug';
 import '../../stylesheets/layout/nav.styl';
 
-import mappingSeg from '../mappingSeg/mappingSeg'
 import dataSource from '../dataSource/dataSource';
 import Workflow from '../workflow/workflow';
 import Visualization from '../visualization/visualization';
