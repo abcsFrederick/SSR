@@ -25,27 +25,27 @@ import HeaderUserView from 'girder/views/layout/HeaderUserView';
 
 var HeaderNavView = View.extend({
   events:{
-    'click #View': '_view',
+    'click #Data': '_data',
     'click #Link': '_link',
-    'click #Analysis': '_analysis',
+    'click #Apps': '_apps',
     'click #History': '_history'
   },
   initialize(settings){
     this.nav = {
-      'View':{
-        'DOM':'s-full-page-body-View'
+      'Data': {
+        'DOM': 's-full-page-body-Data'
       },
-      'Link':{
-        'DOM':'s-full-page-body-Link'
+      'Link': {
+        'DOM': 's-full-page-body-Link'
       },
-      'Analysis':{
-        'DOM':'s-full-page-body-Analysis'
+      'Apps': {
+        'DOM': 's-full-page-body-Apps'
       },
-      'History':{
-        'DOM':'s-full-page-body-History'
+      'History': {
+        'DOM': 's-full-page-body-History'
       },
-      'Welcome':{
-        'DOM':'s-full-page-body-Welcome'
+      'Welcome': {
+        'DOM': 's-full-page-body-Welcome'
       }
     };
     events.on('HeaderView:navigateTo', this.stepElementRender, this);
@@ -55,7 +55,7 @@ var HeaderNavView = View.extend({
   render() {
     this.$el.html(navTemplate());
   },
-  _view(e){
+  _data(e){
     e.preventDefault();
     let curRoute = Backbone.history.fragment,
         routeParts = splitRoute(curRoute),
@@ -66,7 +66,7 @@ var HeaderNavView = View.extend({
         }
     // router.enabled(1);
     // console.log(curRoute);
-    router.navigate('view' + unparsedQueryString, {trigger: true});
+    router.navigate('data' + unparsedQueryString, {trigger: true});
     // router.setQuery('step','View', {trigger: true});
   },
   _link(e){
@@ -84,7 +84,7 @@ var HeaderNavView = View.extend({
     // router.setQuery('step','Link', {trigger: true});
     // console.log(Backbone.history.fragment);
   },
-  _analysis(e){
+  _apps(e){
     e.preventDefault();
     let curRoute = Backbone.history.fragment,
         routeParts = splitRoute(curRoute),
@@ -95,7 +95,7 @@ var HeaderNavView = View.extend({
         }
     // router.enabled(1);
     // console.log(curRoute);
-    router.navigate('analysis' + unparsedQueryString, {trigger: true});
+    router.navigate('apps' + unparsedQueryString, {trigger: true});
     // router.setQuery('step','Analysis', {trigger: true});
   },
   _history(e){
@@ -113,7 +113,7 @@ var HeaderNavView = View.extend({
     // router.setQuery('step','History', {trigger: true});
   },
   stepElementRender(nav){
-    if(nav === 'View'){
+    if(nav === 'Data'){
       $('#Actions').show();
     }else{
       $('#Actions').hide();

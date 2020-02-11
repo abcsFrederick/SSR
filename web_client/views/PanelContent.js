@@ -31,14 +31,14 @@ var PanelContent = View.extend({
       this.SSR_ProjectCollection = this.SSR_ProjectCollection.set(res[0])
     },this));
     this.nav = {
-      'View':{
-        'DOM': 's-full-page-body-View'
+      'Data':{
+        'DOM': 's-full-page-body-Data'
       },
       'Link':{
         'DOM': 's-full-page-body-Link'
       },
-      'Analysis':{
-        'DOM': 's-full-page-body-Analysis'
+      'Apps':{
+        'DOM': 's-full-page-body-Apps'
       },
       'History':{
         'DOM': 's-full-page-body-History'
@@ -64,9 +64,9 @@ var PanelContent = View.extend({
       el: $('#s-full-page-body-Welcome')
     });
 
-    this.View = new dataSource({
+    this.data = new dataSource({
       parentView: this,
-      el: $('#s-full-page-body-View'),
+      el: $('#s-full-page-body-Data'),
       SSR_ProjectCollection: this.SSR_ProjectCollection || {},
       currentUser: getCurrentUser()
     });
@@ -74,7 +74,7 @@ var PanelContent = View.extend({
     this.apps = new Apps({
       parentView: this,
       SSR_ProjectCollection: this.SSR_ProjectCollection || {},
-      el: $('#s-full-page-body-Analysis'),
+      el: $('#s-full-page-body-Apps'),
       currentUser: getCurrentUser()
     }); 
 		return this;
