@@ -20,6 +20,21 @@ var imageActions = View.extend({
         this.currentImageSegmentations = settings.currentImageSegmentations || '';
         this.currentViewFolderId = settings.currentViewFolderId;
 
+        this.allImagesName = settings.allImagesName;
+        this.currentImage = settings.currentImage;
+        this.fromFilesystem = settings.fromFilesystem;
+        this.fromSaipArchive = settings.fromSaipArchive;
+        this.itemsCollectionIds = settings.itemsCollectionIds
+        this.currentImageId = settings.currentImageId;
+
+        if (this.fromFilesystem) {
+            this.render();
+        } else if (this.fromSaipArchive) {
+            this.renderForSAIP();
+        }
+        this.listenTo(events, 'changeBackToView', this.changeBackToView);
+    },
+    render() {
         new Folder({'_id': this.currentViewFolderId}).fetch().done((folder) => {
             this.$el.html(ImageActionsTemplate({
                 accessLevel: folder._accessLevel
@@ -75,17 +90,40 @@ var imageActions = View.extend({
                 fromSaipArchive: this.fromSaipArchive
             }))
         });
-
-        this.allImagesName = settings.allImagesName;
-        this.currentImage = settings.currentImage;
-        this.fromFilesystem = settings.fromFilesystem;
-        this.fromSaipArchive = settings.fromSaipArchive;
-        this.itemsCollectionIds = settings.itemsCollectionIds
-        this.currentImageId = settings.currentImageId;
-
-        this.listenTo(events, 'changeBackToView', this.changeBackToView);
+        return this;
     },
-    render(){
+    renderForSAIP() {
+        this.$el.html(ImageActionsTemplate({
+            accessLevel: true
+        }));
+        $('.mode').html(EditingMode());
+        if (this.mode === 'view') { 
+            $('#modeSwitch')
+                .bootstrapSwitch('state', false)
+                .on('switchChange.bootstrapSwitch', (event, state) => {
+                    if (state) {
+                        let opts = {
+                            el: $('#g-dialog-container'),
+                            parentView: this,
+                            currentImageSegmentations: settings.currentImageSegmentations
+                        }
+                        new editingWidget(opts).render();
+                    } else {
+                        let opts = {
+                            el: $('#g-dialog-container'),
+                            currentViewFolderId: this.currentViewFolderId,
+                            parentView: this
+                        };
+                        new editingWidget(opts);
+                    }
+                });
+        }
+        $('.image_name').html(ImageNameWidget({
+            allImagesName: this.allImagesName,
+            currentImage: this.currentImage,
+            fromFilesystem: this.fromFilesystem,
+            fromSaipArchive: this.fromSaipArchive
+        }))
         return this;
     },
     forward() {
@@ -98,8 +136,11 @@ var imageActions = View.extend({
             nextImageId = this.itemsCollectionIds[nextImageIndex];
         }
         this.currentImageId = nextImageId;
-
-        router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        if (this.fromFilesystem) {
+            router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        } else if (this.fromSaipArchive) {
+            router.setQuery('currentSeries', this.currentImageId, {trigger: true});
+        }
     },
     backward() {
         let nextImageId;
@@ -112,14 +153,22 @@ var imageActions = View.extend({
         }
         this.currentImageId = nextImageId;
 
-        router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        if (this.fromFilesystem) {
+            router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        } else if (this.fromSaipArchive) {
+            router.setQuery('currentSeries', this.currentImageId, {trigger: true});
+        }
     },
     /*
         User select particular image as they wish from preloaded dataset for viewing
     */
     selectRandom(e) {
         this.currentImageId = e.currentTarget.id;
-        router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        if (this.fromFilesystem) {
+            router.setQuery('currentItem', this.currentImageId, {trigger: true});
+        } else if (this.fromSaipArchive) {
+            router.setQuery('currentSeries', this.currentImageId, {trigger: true});
+        }
     },
     // this is needed due to same mode will not trigger
     changeBackToView() {

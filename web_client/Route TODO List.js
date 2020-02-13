@@ -3,9 +3,9 @@
 
 /*App*/
 // Query
-step=View
-step=Link
-step=Analysis
+step=Data
+// step=Link
+step=Apps
 step=History
 
 

@@ -20,95 +20,94 @@ import { getCurrentUser} from 'girder/auth';
 
 var PanelContent = View.extend({
 
-	initialize(settings){
-    this.$el.html(panelContentLayout());
-    this.SSR_ProjectCollection = new CollectionModel();
+	initialize(settings) {
+        this.$el.html(panelContentLayout());
+        this.SSR_ProjectCollection = new CollectionModel();
 
-    restRequest({
-      url:'collection',
-      data:{'text':'SSR Project'}
-    }).then(_.bind((res)=>{
-      this.SSR_ProjectCollection = this.SSR_ProjectCollection.set(res[0])
-    },this));
-    this.nav = {
-      'Data':{
-        'DOM': 's-full-page-body-Data'
-      },
-      'Link':{
-        'DOM': 's-full-page-body-Link'
-      },
-      'Apps':{
-        'DOM': 's-full-page-body-Apps'
-      },
-      'History':{
-        'DOM': 's-full-page-body-History'
-      },
-      'Welcome':{
-        'DOM': 's-full-page-body-Welcome'
-      }
-    };
-    events.on('panelContent:navigateTo', this.stepElementRender, this);
+        restRequest({
+            url: 'collection',
+            data: {'text': 'SSR Project'}
+        }).then(_.bind((res)=>{
+            this.SSR_ProjectCollection = this.SSR_ProjectCollection.set(res[0]);
+        }, this));
+        this.nav = {
+            'Data':{
+                'DOM': 's-full-page-body-Data'
+            },
+            'Link':{
+                'DOM': 's-full-page-body-Link'
+            },
+            'Apps':{
+                'DOM': 's-full-page-body-Apps'
+            },
+            'History':{
+                'DOM': 's-full-page-body-History'
+            },
+            'Welcome':{
+                'DOM': 's-full-page-body-Welcome'
+            }
+        };
+        events.on('panelContent:navigateTo', this.stepElementRender, this);
 	},
 	render(){
-    if (this.Welcome) {
-      this.Welcome.destroy();
-    }
-    if (this.View) {
-      this.View.destroy();
-    }
-    if (this.apps) {
-      this.apps.destroy();
-    }
-    this.Welcome = new FrontPageView({
-      parentView: this,
-      el: $('#s-full-page-body-Welcome')
-    });
+        if (this.Welcome) {
+            this.Welcome.destroy();
+        }
+        if (this.View) {
+            this.View.destroy();
+        }
+        if (this.apps) {
+            this.apps.destroy();
+        }
+        this.Welcome = new FrontPageView({
+            parentView: this,
+            el: $('#s-full-page-body-Welcome')
+        });
 
-    this.data = new dataSource({
-      parentView: this,
-      el: $('#s-full-page-body-Data'),
-      SSR_ProjectCollection: this.SSR_ProjectCollection || {},
-      currentUser: getCurrentUser()
-    });
+        this.data = new dataSource({
+            parentView: this,
+            el: $('#s-full-page-body-Data'),
+            SSR_ProjectCollection: this.SSR_ProjectCollection || {},
+            currentUser: getCurrentUser()
+        });
 
-    this.apps = new Apps({
-      parentView: this,
-      SSR_ProjectCollection: this.SSR_ProjectCollection || {},
-      el: $('#s-full-page-body-Apps'),
-      currentUser: getCurrentUser()
-    }); 
+        this.apps = new Apps({
+            parentView: this,
+            SSR_ProjectCollection: this.SSR_ProjectCollection || {},
+            el: $('#s-full-page-body-Apps'),
+            currentUser: getCurrentUser()
+        }); 
 		return this;
 	},
-	stepElementRender(nav){  
-    if (nav) {
-      if (this.currentNav != nav) {
-        this.currentNav = nav;
-      }
-      Object.keys(this.nav).forEach(key => {
-        let dom = this.nav[key].DOM;
-        $('#' + dom).hide();
-      });
-      let currentDom = this.nav[this.currentNav].DOM;
-      $('#' + this.nav[this.currentNav].DOM).show();
+	stepElementRender(nav) { 
+        if (nav) {
+            if (this.currentNav !== nav) {
+                this.currentNav = nav;
+            }
+            Object.keys(this.nav).forEach(key => {
+                let dom = this.nav[key].DOM;
+                $('#' + dom).hide();
+            });
+            let currentDom = this.nav[this.currentNav].DOM;
+            $('#' + this.nav[this.currentNav].DOM).show();
 
-      if (nav === 'History') {
-        if (this.History) {
-          this.History.destroy();
+            if (nav === 'History') {
+                if (this.History) {
+                    this.History.destroy();
+                }
+                restRequest({
+                    url: 'SSR/'
+                }).done(_.bind(function (records) {
+                    this.History = new History({
+                        records: records,
+                        parentView: this,
+                        el: $('#s-full-page-body-History'),
+                        currentUser: getCurrentUser()
+                    });
+                }, this));
+            }
         }
-        restRequest({
-          url: 'SSR/'
-        }).done(_.bind(function (records) {
-          this.History = new History({
-            records: records,
-            // controlPanel: this.controlPanel,
-            parentView: this,
-            el: $('#s-full-page-body-History'),
-            currentUser: getCurrentUser()
-          });
-        },this));
-      }
     }
-  }
 });
 
 export default PanelContent;

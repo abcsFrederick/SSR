@@ -6,7 +6,7 @@ import Router from './router';
 import ItemView from 'girder/views/body/ItemView';
 // import UserView from './views/widgets/UserViewWidget';
 // import CollectionView from './views/widgets/CollectionViewWidget';
-import SaipView from './views/widgets/SaipViewWidget';
+// import SaipView from './views/widgets/SaipViewWidget';
 import app from './app';
 
 

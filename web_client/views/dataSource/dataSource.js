@@ -20,17 +20,19 @@ import PreviewPrepareTemplate from '../../templates/preview/previewPrepareTempla
 import router from '../../router';
 import dataSourceTemplate from '../../templates/dataSource/dataSource.pug';
 import '../../stylesheets/dataSource/dataSource.styl';
-import UsersView from '../widgets/UsersViewWidget';
-import CollectionsView from '../widgets/CollectionsViewWidget';
-import SaipView from '../widgets/SaipViewWidget';
+// import UsersView from '../widgets/UsersViewWidget';
+// import CollectionsView from '../widgets/CollectionsViewWidget';
+// import SaipView from '../widgets/SaipViewWidget';
 
 import AnnotationSelector from '../widgets/AnnotationSelectorWidget';
 import ImageActions from './imageActions';
 
-import ArchiveView from 'girder_plugins/Archive/views/ArchiveView';
+import ArchiveView from 'girder_plugins/Archive/views/body/ArchiveView';
 import AmiViewerSEG from 'girder_plugins/AMI_plugin/views/AMIViewerSEG';
 import UserView from 'girder_plugins/SSR_task/views/widgets/UserViewWidget';
 import CollectionView from 'girder_plugins/SSR_task/views/widgets/CollectionViewWidget';
+import ArchiveItemCollection from 'girder_plugins/Archive/collections/ItemCollection';
+import ArchiveItemModel from 'girder_plugins/Archive/models/ItemModel';
 
 var dataSource =  View.extend({
 	events: {
@@ -102,8 +104,8 @@ var dataSource =  View.extend({
 		    if (unparsedQueryString.length > 0) {
 		        unparsedQueryString = '?' + unparsedQueryString;
 		    }
-		    this.fromFilesystem = true;
-	        this.fromSaipArchive = false;
+		    this.fromFilesystem = false;
+	        this.fromSaipArchive = true;
 	        this.saipArchive = new ArchiveView({
 	            parentView: this,
 	            el: '#dataSAIPArch',
@@ -168,10 +170,14 @@ var dataSource =  View.extend({
 
 	    /*Set visualized item's parent folder (not workspace folder)*/
 	    this.listenTo(events, 'query:filesystemFolder', this.filesystemFolder);
-
+	    this.listenTo(events, 'query:studyFolder', this.studyFolder);
 	    // events.on('ds:highlightItem', this.selectForView, this);
 	    
 	    this.listenTo(events, 'query:currentItem', this.visualization);
+	    this.listenTo(events, 'query:currentSeries', this.archiveVisualization);
+
+	    this.on('renderImageActions', this.imageActionsRender);
+
 	    this.listenTo(events, 'query:editSegmentationFolderId', this.editSegmentationFolderId);
 	    this.listenTo(events, 'query:cursorSize', this._setCursorSize);
 	    this.listenTo(events, 'query:labelColor', this._setLabelColor);
@@ -212,7 +218,7 @@ var dataSource =  View.extend({
 	    let curRoute = Backbone.history.fragment,
 	    nav = splitRoute(curRoute).base.split('/')[0];
 	    // Make sure on view panel
-	    if (nav === 'view') {
+	    if (nav === 'data') {
 	      	this.currentImageId = e;
 	      	if (this._openId !== this.currentImageId || this._mode !== this.mode) {
 	        	this._mode = this.mode;
@@ -250,6 +256,7 @@ var dataSource =  View.extend({
 	  			        		'originalId': this.currentImageId
 	  			        	}
 	  			      	}).then(_.bind((items) => {
+	  			      		this.segmentations = items;
 	  			      		if (items.length) {
 		            			let segmentationItemId = items[0]['segmentationId'];
 		  				      	this.getImageFilesFromItemPromise(segmentationItemId).then((files) => {
@@ -270,23 +277,6 @@ var dataSource =  View.extend({
 		  						      	});
 		  						    }
 		  				      	});
-			                    if(this.imageActions){
-			                        this.imageActions.destroy();
-			                    }
-		                  
-			                    this.imageActions = new ImageActions({
-									el: $('#Actions'),
-									mode: this.mode,
-									currentViewFolderId: this.sourceFolderId,
-									currentImageSegmentations: items,
-									itemsCollectionIds: this.itemsCollectionIds,
-									allImagesName: this.itemsCollection.models,
-									currentImage: this.currentImage.get('name'),
-									currentImageId:this.currentImage.get('_id'),
-									fromFilesystem: this.fromFilesystem,
-									fromSaipArchive: this.fromSaipArchive,
-									parentView: this
-			                    }).render();
 	                  			this.amiDisplayPreview.annotationSelector(items, this.mode, this.editSegmentationFolderId, this.labelColor, this.cursorSize);
 		  			      	} else {
 		  			      	}
@@ -295,6 +285,74 @@ var dataSource =  View.extend({
 	  	  		});
 	  	    }
 	    }
+	},
+	archiveVisualization(e) {
+	    let curRoute = Backbone.history.fragment,
+	    nav = splitRoute(curRoute).base.split('/')[0];
+	    // Make sure on view panel
+
+	    if (nav === 'data') {
+	    	this.currentImageId = e;
+	      	if (this._openId !== this.currentImageId || this._mode !== this.mode) {
+	        	this._mode = this.mode;
+	  			this._openId = this.currentImageId;
+	  			this.SAIPItem = new ArchiveItemModel();
+	  			this.SAIPItem.on('archive:slices', function (slices) {
+	  				this.slicesCollection = slices;
+	  				let displayUrl;
+					displayUrl = _.map(this.slicesCollection.models, function (eachSlice) {
+						return 'api/v1/Archive/SAIP/slice/download?Type=slice&id=' + eachSlice.get('id');
+					});
+					if (this.amiDisplayPreview) {
+	  	          		this.init = false;
+						if (this.amiDisplayPreview.annotationNeedsUpdate) {
+							this._saveAnnotationAlert(this.amiDisplayPreview.currentAnnotationItemId);
+						}
+	  	        	} else {
+	  	          		this.amiDisplayPreview = new AmiViewerSEG({
+		  	    			el: '.ssrVisualizer',
+		  	                parentView: this
+	  	          		});
+	  	        	}
+  					this.amiDisplayPreview.render(this.init, displayUrl);
+
+	  			}, this).set({archive: 'SAIP'}).getSlices(this.currentImageId);
+	  		}
+	    }
+	},
+	imageActionsRender() {
+		if(this.imageActions){
+            this.imageActions.destroy();
+        }
+		if (this.fromFilesystem) {
+            this.imageActions = new ImageActions({
+				el: $('#Actions'),
+				mode: this.mode,
+				currentViewFolderId: this.sourceFolderId,
+				currentImageSegmentations: this.segmentations,
+				itemsCollectionIds: this.itemsCollectionIds,
+				allImagesName: this.itemsCollection.models,
+				currentImage: this.currentImage.get('name'),
+				currentImageId:this.currentImage.get('_id'),
+				fromFilesystem: this.fromFilesystem,
+				fromSaipArchive: this.fromSaipArchive,
+				parentView: this
+            });
+		} else if (this.fromSaipArchive) {
+			this.imageActions = new ImageActions({
+				el: $('#Actions'),
+				mode: this.mode,
+				currentViewFolderId: this.studyFolderId,
+				currentImageSegmentations: null,
+				itemsCollectionIds: this.archiveItemsCollectionIds,
+				allImagesName: this.archiveItemsCollection.models,
+				currentImage: this.currentSlice.get('series_description'),
+				currentImageId:this.currentSlice.get('id'),
+				fromFilesystem: this.fromFilesystem,
+				fromSaipArchive: this.fromSaipArchive,
+				parentView: this
+	        });
+		}
 	},
 	editSegmentationFolderId(editSegmentationFolderId) {
 		this.editSegmentationFolderId = editSegmentationFolderId;
@@ -315,164 +373,11 @@ var dataSource =  View.extend({
 		$('.wrapper').toggleClass('active');
 	},
 	/*
-		For SAIP archive selection
-	*/
-	// findPath(typeAndIdOrPath){
-
-	// 	let type=typeAndIdOrPath.currentTarget.getAttribute('s-type');
-	// 	let seriesPathDiff=[];
-	// 	let seriesPathSame=[];
-
-	// 	let seriesIdDiff=[];
-	// 	let seriesIdSame=[];
-
-	// 	let seriesIdentityDiff=[];
-	// 	let seriesIdentitySame=[];
-
-	// 	let query_id;
-	// 	if(type==='project'){
-	// 		query_id = typeAndIdOrPath.currentTarget.getAttribute('s-project-id');
-	// 		restRequest({
-	// 			url:'SAIP/'+query_id+'/rootpath/project'	
-	// 		}).then(_.bind((col)=>{
-	// 			seriesPathDiff=col.series_roots.diff(this.totalSeriesPath);
-	// 			// console.log(seriesPathDiff)
-	// 			this.totalSeriesPathInit = this.totalSeriesPath
-	// 			// concat first to prevent after going upper level some inside already selected and forget to remove from list
-	// 			this.totalSeriesPath=this.totalSeriesPath.concat(seriesPathDiff)
-	// 			// and after adding all folder underneath folder then remove same which will make sure even if going up level all underneath clean up when uncheck checkbox
-	// 			seriesPathSame=col.series_roots.same(this.totalSeriesPathInit);
-	// 			this.totalSeriesPath=this.totalSeriesPath.removeSame(seriesPathSame)
-	// 			console.log(this.totalSeriesPath)
-
-	// 			seriesIdDiff=col.seriesId.diff(this.totalSeriesId);
-	// 			this.totalSeriesIdInit = this.totalSeriesId;
-	// 			this.totalSeriesId=this.totalSeriesId.concat(seriesIdDiff);
-	// 			seriesIdSame=col.seriesId.same(this.totalSeriesIdInit);
-	// 			this.totalSeriesId=this.totalSeriesId.removeSame(seriesIdSame);
-	// 			console.log(this.totalSeriesId)
-
-	// 			seriesIdentityDiff=col.identity.diff(this.totalSeriesIdentity);
-	// 			this.totalSeriesIdentityInit = this.totalSeriesIdentity;
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.concat(seriesIdentityDiff);
-	// 			seriesIdentitySame=col.identity.same(this.totalSeriesIdentityInit);
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.removeSame(seriesIdentitySame);
-	// 			console.log(this.totalSeriesIdentity)
-	// 		},this));
-	// 	}else if(type==='experiment'){
-	// 		query_id = typeAndIdOrPath.currentTarget.getAttribute('s-experiment-id');
-	// 		restRequest({
-	// 			url:'SAIP/'+query_id+'/rootpath/experiment'	
-	// 		}).then((col)=>{
-	// 			console.log(col.series_roots)
-	// 			this.totalSeriesPathInit = this.totalSeriesPath
-	// 			seriesPathDiff=col.series_roots.diff(this.totalSeriesPath);
-	// 			this.totalSeriesPath=this.totalSeriesPath.concat(seriesPathDiff);
-	// 			console.log(typeof(this.totalSeriesPath))
-	// 			seriesPathSame=col.series_roots.same(this.totalSeriesPathInit);
-	// 			this.totalSeriesPath=this.totalSeriesPath.removeSame(seriesPathSame)
-	// 			console.log(this.totalSeriesPath)
-
-	// 			seriesIdDiff=col.seriesId.diff(this.totalSeriesId);
-	// 			this.totalSeriesIdInit = this.totalSeriesId;
-	// 			this.totalSeriesId=this.totalSeriesId.concat(seriesIdDiff);
-	// 			seriesIdSame=col.seriesId.same(this.totalSeriesIdInit);
-	// 			this.totalSeriesId=this.totalSeriesId.removeSame(seriesIdSame);
-	// 			console.log(this.totalSeriesId)
-
-	// 			seriesIdentityDiff=col.identity.diff(this.totalSeriesIdentity);
-	// 			this.totalSeriesIdentityInit = this.totalSeriesIdentity;
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.concat(seriesIdentityDiff);
-	// 			seriesIdentitySame=col.identity.same(this.totalSeriesIdentityInit);
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.removeSame(seriesIdentitySame);
-	// 			console.log(this.totalSeriesIdentity)
-	// 		});
-	// 	}else if(type==='patient'){
-	// 		query_id = typeAndIdOrPath.currentTarget.getAttribute('s-patient-id');
-	// 		restRequest({
-	// 			url:'SAIP/'+query_id+'/rootpath/patient'	
-	// 		}).then((col)=>{
-	// 			this.totalSeriesPathInit = this.totalSeriesPath
-	// 			seriesPathDiff=col.series_roots.diff(this.totalSeriesPath);
-	// 			this.totalSeriesPath=this.totalSeriesPath.concat(seriesPathDiff)
-	// 			seriesPathSame=col.series_roots.same(this.totalSeriesPathInit);
-	// 			this.totalSeriesPath=this.totalSeriesPath.removeSame(seriesPathSame)
-	// 			console.log(this.totalSeriesPath)
-
-	// 			seriesIdDiff=col.seriesId.diff(this.totalSeriesId);
-	// 			this.totalSeriesIdInit = this.totalSeriesId;
-	// 			this.totalSeriesId=this.totalSeriesId.concat(seriesIdDiff);
-	// 			seriesIdSame=col.seriesId.same(this.totalSeriesIdInit);
-	// 			this.totalSeriesId=this.totalSeriesId.removeSame(seriesIdSame);
-	// 			console.log(this.totalSeriesId);
-
-	// 			seriesIdentityDiff=col.identity.diff(this.totalSeriesIdentity);
-	// 			this.totalSeriesIdentityInit = this.totalSeriesIdentity;
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.concat(seriesIdentityDiff);
-	// 			seriesIdentitySame=col.identity.same(this.totalSeriesIdentityInit);
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.removeSame(seriesIdentitySame);
-	// 			console.log(this.totalSeriesIdentity)
-	// 		});
-	// 	}else if(type==='study'){
-	// 		query_id = typeAndIdOrPath.currentTarget.getAttribute('s-study-id');
-	// 		restRequest({
-	// 			url:'SAIP/'+query_id+'/rootpath/study'	
-	// 		}).then((col)=>{
-	// 			this.totalSeriesPathInit = this.totalSeriesPath
-	// 			seriesPathDiff=col.series_roots.diff(this.totalSeriesPath);
-	// 			this.totalSeriesPath=this.totalSeriesPath.concat(seriesPathDiff)
-	// 			seriesPathSame=col.series_roots.same(this.totalSeriesPathInit);
-	// 			this.totalSeriesPath=this.totalSeriesPath.removeSame(seriesPathSame)
-	// 			console.log(this.totalSeriesPath);
-
-	// 			seriesIdDiff=col.seriesId.diff(this.totalSeriesId);
-	// 			this.totalSeriesIdInit = this.totalSeriesId;
-	// 			this.totalSeriesId=this.totalSeriesId.concat(seriesIdDiff);
-	// 			seriesIdSame=col.seriesId.same(this.totalSeriesIdInit);
-	// 			this.totalSeriesId=this.totalSeriesId.removeSame(seriesIdSame);
-	// 			console.log(this.totalSeriesId);
-
-	// 			seriesIdentityDiff=col.identity.diff(this.totalSeriesIdentity);
-	// 			this.totalSeriesIdentityInit = this.totalSeriesIdentity;
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.concat(seriesIdentityDiff);
-	// 			seriesIdentitySame=col.identity.same(this.totalSeriesIdentityInit);
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.removeSame(seriesIdentitySame);
-	// 			console.log(this.totalSeriesIdentity)
-	// 		});
-	// 	}else if(type==='series'){
-	// 		query_id = typeAndIdOrPath.currentTarget.getAttribute('s-series-id');
-	// 		restRequest({
-	// 			url:'SAIP/'+query_id+'/rootpath/series'	
-	// 		}).then((col)=>{
-	// 			this.totalSeriesPathInit = this.totalSeriesPath
-	// 			seriesPathDiff=col.series_roots.diff(this.totalSeriesPath);
-	// 			this.totalSeriesPath=this.totalSeriesPath.concat(seriesPathDiff)
-	// 			seriesPathSame=col.series_roots.same(this.totalSeriesPathInit);
-	// 			this.totalSeriesPath=this.totalSeriesPath.removeSame(seriesPathSame)
-	// 			console.log(this.totalSeriesPath);
-
-	// 			seriesIdDiff=col.seriesId.diff(this.totalSeriesId);
-	// 			this.totalSeriesIdInit = this.totalSeriesId;
-	// 			this.totalSeriesId=this.totalSeriesId.concat(seriesIdDiff);
-	// 			seriesIdSame=col.seriesId.same(this.totalSeriesIdInit);
-	// 			this.totalSeriesId=this.totalSeriesId.removeSame(seriesIdSame);
-	// 			console.log(this.totalSeriesId);
-
-	// 			seriesIdentityDiff=col.identity.diff(this.totalSeriesIdentity);
-	// 			this.totalSeriesIdentityInit = this.totalSeriesIdentity;
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.concat(seriesIdentityDiff);
-	// 			seriesIdentitySame=col.identity.same(this.totalSeriesIdentityInit);
-	// 			this.totalSeriesIdentity=this.totalSeriesIdentity.removeSame(seriesIdentitySame);
-	// 			console.log(this.totalSeriesIdentity)
-	// 		});
-	// 	}	
-	// },
-	/*
 		Green View is click
 	*/
 	startView (e) {
-		this.itemsCollection = new ItemCollection();
 		if (this.fromFilesystem) {
+			this.itemsCollection = new ItemCollection();
 			let folderView = this.girderArchive.hierarchyWidget.folderListView;
 			let folders = folderView.checked;
 			/* folders should be limited as only one for now */
@@ -496,27 +401,18 @@ var dataSource =  View.extend({
 	      	}
 		} else if (this.fromSaipArchive) {
 			// router.enabled(1);
-			let studyId = this.dsSaipView.saipProjectsView.saipExperimentsView.saipPatientsView.saipStudiesView.selectecStudyId;
-			this.itemListsFromFolder=[];
-			restRequest({
-				method:'GET',
-				url:'SAIP/' + studyId + '/SAIPExistingValidation'
-			}).then(_.bind((res)=>{
-				let folderModel = new FolderModel(res);
-				this.currentViewFolder = folderModel;
-				restRequest({
-					method:'GET',
-					url:'/item',
-					data:{'folderId':folderModel.get('_id')}
-				}).then(_.bind((items)=>{
-					this.itemListsFromFolder = this.itemListsFromFolder.concat(items);
-					this.itemsCollection.set(this.itemListsFromFolder);
-					// router.enabled(1);
-					router.setQuery('filesystemFolder', folderModel.get('_id'), {trigger: true});
-					// this.controlPanel.currentViewItemId = this.itemsCollection.models[0].get('_id');
-					router.setQuery('PreviewFileItem',this.itemsCollection.models[0].get('_id'), {trigger: true});
-				},this));
-			},this));
+			let studyFolderView = this.saipArchive.hierarchyWidget.folderListView;
+			let folders = studyFolderView.checked;
+			this.archiveItemsCollection = new ArchiveItemCollection();
+			for (let a = 0; a < folders.length; a++) {
+				let studyFolderModel = studyFolderView.collection.get(folders[a]);
+				this.archiveItemsCollection.rename({archive: 'SAIP', type: 'series'});
+	        	this.archiveItemsCollection.on('g:changed', function () {
+	        		router.setQuery('mode', 'view');
+					router.setQuery('studyFolder', studyFolderModel.get('id'));
+					router.setQuery('currentSeries', this.archiveItemsCollection.at(0).get('id'), {trigger: true, replace: true});
+	        	}, this).fetch({id: studyFolderModel.get('id')});
+        	}
 		} else {
 			events.trigger('g:alert', {
 				type: 'warning',
@@ -531,8 +427,8 @@ var dataSource =  View.extend({
 		this.itemListsFromFolder = [];
 		this.itemsCollectionIds = [];
 		this.sourceFolderId = sourceFolderId;
-		// this.fromFilesystem = true;
-		// this.fromSaipArchive = false;
+		this.fromFilesystem = true;
+		this.fromSaipArchive = false;
 		restRequest({
 			method: 'GET',
 			url: '/item',
@@ -550,7 +446,28 @@ var dataSource =  View.extend({
 				this.itemsCollectionIds.push(this.itemsCollection.models[a].get('_id'));
 			}
 			this.currentImageId = this.currentImage.get('_id');
+			this.trigger('renderImageActions');
 		}, this));
+	},
+	studyFolder(studyFolderId) {
+		this.archiveItemsCollectionIds = [];
+		this.studyFolderId = studyFolderId;
+		this.fromFilesystem = false;
+		this.fromSaipArchive = true;
+		this.archiveItemsCollection = new ArchiveItemCollection();
+		this.archiveItemsCollection.rename({archive: 'SAIP', type: 'series'});
+		this.archiveItemsCollection.on('g:changed', function (items) {
+			this.currentSlice = this.archiveItemsCollection.where({id: parseInt(this.currentImageId)})[0];
+			if (!this.currentSlice) {
+				this.currentSlice = this.archiveItemsCollection.models[0];
+			}
+
+			for(let a = 0; a < this.archiveItemsCollection.models.length; a++) {
+				this.archiveItemsCollectionIds.push(this.archiveItemsCollection.models[a].get('id'));
+			}
+			this.currentSliceId = this.currentSlice.get('id');
+			this.trigger('renderImageActions');
+    	}, this).fetch({id: studyFolderId});
 	},
 	closePreviewModal() {
 		$('#PreviewSelection').hide();
