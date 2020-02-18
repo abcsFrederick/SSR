@@ -9,7 +9,7 @@ import Apps from 'girder_plugins/SSR_task/views/layouts/main';
 
 import FrontPageView from './layout/FrontPageView';
 import DataSource from './dataSource/dataSource';
-import History from './history/history';
+// import History from './history/history';
 
 import events from '../events';
 import panelContentLayout from '../templates/layout/panelContentLayout.pug';
