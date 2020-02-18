@@ -70,8 +70,11 @@ before_install:
 
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "3" ]; then export PY3="true"; else export PY2="true"; fi
     - GIRDER_VERSION=2.x-maintenance
-    - GIRDER_WORKER_VERSION=v0.5.1
+    # - GIRDER_WORKER_VERSION=v0.5.1
     - ARCHIVE_VERSION=master
+    - AMI_PLUGIN_VERSION=master
+    - SSR_TASK_VERSION=master
+    - NCIAUTH_VERSION=master
     - main_path=$PWD
     - SSR_PATH=$TRAVIS_BUILD_DIR
     - build_path=$HOME/build
@@ -82,18 +85,27 @@ before_install:
     - git clone https://github.com/girder/girder.git $girder_path && git -C $girder_path checkout $GIRDER_VERSION
     - ln -sf $main_path $girder_path/plugins/
 
-    - girder_worker_path=$HOME/girder_worker
-    - git clone https://github.com/girder/girder_worker.git $girder_worker_path && git -C $girder_worker_path checkout $GIRDER_WORKER_VERSION
-    - cp $SSR_PATH/plugin_tests/data/girder_worker.cfg $girder_worker_path/girder_worker/worker.local.cfg
-    - if [ -n "${PY3}" ]; then
-      sudo pip2 install --no-cache-dir -U setuptools &&
-      sudo pip2 install --no-cache-dir -U $girder_worker_path'[girder_io,docker]' ;
-      else
-      pip install --no-cache-dir -U $girder_worker_path'[girder_io,docker]' ;
-      fi
+    # - girder_worker_path=$HOME/girder_worker
+    # - git clone https://github.com/girder/girder_worker.git $girder_worker_path && git -C $girder_worker_path checkout $GIRDER_WORKER_VERSION
+    # - cp $SSR_PATH/plugin_tests/data/girder_worker.cfg $girder_worker_path/girder_worker/worker.local.cfg
+    # - if [ -n "${PY3}" ]; then
+    #   sudo pip2 install --no-cache-dir -U setuptools &&
+    #   sudo pip2 install --no-cache-dir -U $girder_worker_path'[girder_io,docker]' ;
+    #   else
+    #   pip install --no-cache-dir -U $girder_worker_path'[girder_io,docker]' ;
+    #   fi
 
     - Archive_path=$girder_path/plugins/Archive
     - git clone https://github.com/abcsFrederick/Archive.git $Archive_path && git -C $Archive_path checkout $ARCHIVE_VERSION
+
+    - AMI_plugin_path=$girder_path/plugins/AMI_plugin
+    - git clone https://github.com/abcsFrederick/AMI_plugin.git $AMI_plugin_path && git -C $AMI_plugin_path checkout $AMI_PLUGIN_VERSION
+
+    - SSR_task_path=$girder_path/plugins/SSR_task
+    - git clone https://github.com/abcsFrederick/SSR_task.git $SSR_task_path && git -C $SSR_task_path checkout $SSR_TASK_VERSION
+
+    - NCIAuth_path=$girder_path/plugins/NCIAuth_path
+    - git clone https://github.com/abcsFrederick/NCIAuth.git $NCIAuth_path && git -C $NCIAuth_path checkout $NCIAUTH_VERSION
 
     - export MONGO_VERSION=3.4.19
     - export PY_COVG="ON"
@@ -110,16 +122,19 @@ install:
     - pip install -U --upgrade-strategy eager -r requirements-dev.txt
     - pip install -U --upgrade-strategy eager -e .[worker]
 
-    - cd $SSR_PATH
+    - cd $SSR_task_path
     - pip install -r script/*/requirements.txt
 
     - cd $Archive_path
+    - pip install -r requirements.txt
+
+    - cd $NCIAuth_path
     - pip install -r requirements.txt
     # needs to be installed in dev mode for it to place binaries of cython/c extensions in place
     # - pip install -e .
     - cd $girder_path
     - npm-install-retry
-    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,Archive,NCIAuth,d3_plugin,AMI_plugin,SSR_task,SSR --dev > /dev/null 
+    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,Archive,NCIAuth,AMI_plugin,SSR_task,SSR --dev > /dev/null 
     - pip install jupyter sphinx sphinx_rtd_theme nbsphinx travis-sphinx
     # - pip install numpy==1.13.1  # pin numpy for now
     - pip freeze  # report what we have installed
