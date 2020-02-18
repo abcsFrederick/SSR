@@ -8,7 +8,6 @@ var router = new Backbone.Router();
 // import router from 'girder/router';
 
 router.setQuery = function setQuery(name, value, options) {
-
     var curRoute = Backbone.history.fragment,
         routeParts = splitRoute(curRoute),
         queryString = parseQueryString(routeParts.name);
@@ -23,9 +22,9 @@ router.setQuery = function setQuery(name, value, options) {
     if (value === undefined || value === null) {
         delete queryString[name];
     } else {
-        if(name === 'step' && value === 'view'){
+        if (name === 'step' && value === 'view') {
             this.flag = true;
-        }else{
+        } else {
             this.flag = false;
         }
         queryString[name] = value;
@@ -49,15 +48,12 @@ router.execute = function execute(callback, args) {
 
     args.push(query);
 
-    
     if (callback) {
         callback.apply(this, args);
     }
 
     _.each(this._lastQueryString || {}, function (value, key) {
-
         if (!_.has(query, key)) {
-
             events.trigger('query:' + key, null, query);
         }
     });
@@ -67,7 +63,6 @@ router.execute = function execute(callback, args) {
     });
     events.trigger('query', query);
     this._lastQueryString = query;
-
 };
 
 export default router;

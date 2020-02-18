@@ -1,24 +1,21 @@
+import _ from 'underscore';
 import Backbone from 'backbone';
 
 import GirderApp from 'girder/views/App';
 import eventStream from 'girder/utilities/EventStream';
 import { getCurrentUser } from 'girder/auth';
-import UserModel from 'girder/models/UserModel';
 import { splitRoute } from 'girder/misc';
-import { restRequest } from 'girder/rest';
 
 import router from './router';
 import HeaderView from './views/layout/HeaderView';
 import bindRoutes from './routes';
+import PanelContent from './views/PanelContent';
 
 import layoutTemplate from './templates/layout/layout.pug';
 import './stylesheets/layout/layout.styl';
-import PanelContent from './views/PanelContent';
-import CollectionModel from 'girder/models/CollectionModel';
 
 var App = GirderApp.extend({
-    
-    initialize(settings){
+    initialize(settings) {
         // restRequest({
         //     url:'collection',
         //     data:{'text':'SSR Project'}
@@ -49,7 +46,7 @@ var App = GirderApp.extend({
             settings: this.settings
         }).render();
 
-        if(getCurrentUser()){
+        if (getCurrentUser()) {
             if (this.panelContentView) {
                 this.panelContentView.destroy();
             }
@@ -57,12 +54,11 @@ var App = GirderApp.extend({
             this.panelContentView = new PanelContent({
                 el: this.$('#g-app-body-container'),
                 parentView: this,
-                brandName: this.brandName,
+                brandName: this.brandName
             });
 
             this.panelContentView.render();
         }
-        
         return this;
     },
     login: function () {
@@ -76,7 +72,7 @@ var App = GirderApp.extend({
             router.navigate(route, {trigger: true});
         } else {
             router.navigate('/', {trigger: true});
-            location.reload(true)
+            location.reload(true);
         }
     },
     bindRoutes: bindRoutes

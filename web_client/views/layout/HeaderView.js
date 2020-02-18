@@ -1,11 +1,10 @@
-import headerTemplate from '../../templates/layout/header.pug';
-import '../../stylesheets/layout/header.styl';
-
 import View from 'girder/views/View';
+
 import router from '../../router';
 import HeaderNavView from './HeaderNavView';
 import HeaderUserView from './HeaderUserView';
-// import HeaderImageView from './HeaderImageView';
+import headerTemplate from '../../templates/layout/header.pug';
+import '../../stylesheets/layout/header.styl';
 
 var HeaderView = View.extend({
     events: {
@@ -13,33 +12,17 @@ var HeaderView = View.extend({
             router.navigate('', {trigger: true});
         }
     },
-
     initialize(params) {
-        // this.settings = params.settings;
         return View.prototype.initialize.apply(this, arguments);
     },
 
     render() {
-        this.$el.html(headerTemplate({
-            // brandName: this.settings.brandName,
-            // brandColor: this.settings.brandColor,
-            // bannerColor: this.settings.bannerColor
-        }));
-
-        // this.$('a[title]').tooltip({
-        //     placement: 'bottom',
-        //     delay: {show: 300}
-        // });
+        this.$el.html(headerTemplate());
 
         new HeaderUserView({
             el: this.$('.s-current-user-wrapper'),
             parentView: this
         }).render();
-
-        // new HeaderImageView({
-        //     el: this.$('.s-image-wrapper'),
-        //     parentView: this
-        // }).render();
 
         new HeaderNavView({
             el: this.$('.s-nav-wrapper'),

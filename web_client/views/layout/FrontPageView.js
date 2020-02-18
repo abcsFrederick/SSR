@@ -1,9 +1,8 @@
 import $ from 'jquery';
-
+import Backbone from 'backbone';
 import versionInfo from 'girder/version';
 import View from 'girder/views/View';
 import { cancelRestRequests, getApiRoot } from 'girder/rest';
-import events from 'girder/events';
 import { getCurrentUser } from 'girder/auth';
 import { splitRoute, parseQueryString } from 'girder/misc';
 
@@ -17,24 +16,13 @@ import router from '../../router';
  */
 var FrontPageView = View.extend({
     events: {
-        // 'click .g-register-link': function () {
-        //     events.trigger('g:registerUi');
-        // },
-        // 'click .g-login-link': function () {
-        //     events.trigger('g:loginUi');
-        // },
-        // 'click .g-quicksearch-link': function () {
-        //     $('.g-quick-search-container .g-search-field').focus();
-        // }
-        'click .card-block':'_gotoNavPanel'
+        'click .card-block': '_gotoNavPanel'
     },
-
     initialize: function (settings) {
         cancelRestRequests('fetch');
         this.brandName = settings.brandName || 'Girder';
         this.render();
     },
-
     render: function () {
         this.$el.html(FrontPageTemplate({
             apiRoot: getApiRoot(),
@@ -45,17 +33,15 @@ var FrontPageView = View.extend({
 
         return this;
     },
-    _gotoNavPanel: function(e){
+    _gotoNavPanel: function (e) {
         let nav = e.currentTarget.getAttribute('target');
         let curRoute = Backbone.history.fragment,
             routeParts = splitRoute(curRoute),
             queryString = parseQueryString(routeParts.name);
         let unparsedQueryString = $.param(queryString);
-            if (unparsedQueryString.length > 0) {
-                unparsedQueryString = '?' + unparsedQueryString;
-            }
-        // router.enabled(1);
-        // console.log(curRoute);
+        if (unparsedQueryString.length > 0) {
+            unparsedQueryString = '?' + unparsedQueryString;
+        }
         router.navigate(nav + unparsedQueryString, {trigger: true});
     }
 });

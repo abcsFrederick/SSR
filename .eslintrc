@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "no-new": 0,
+    "promise/no-nesting": 0,
+    "promise/no-native": 0,
+    "underscore/prefer-constant": 0,
+    "no-alert": 0
+  },
+  "env": { "es6": true } 
+}

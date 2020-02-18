@@ -1,34 +1,33 @@
 .g-ds-nav-container
-	.g-global-nav-main
-		ul.list.components.g-global-nav#datasourceNav
-			.datasourceNavPanel.panel
-				li.g-global-nav-li(data-toggle="collapse", data-target='#dataSAIPArch', data-parent="#datasourceNav")
-					a.g-nav-link.ds-SAIP(g-name='dsSAIPProject' g-target='dsSAIPProject') 
-						i.icon-download-cloud
-						span SAIP
-				#dataSAIPArch.dataSourceArch.collapse
+  .g-global-nav-main
+    ul#datasourceNav.list.components.g-global-nav
+      .datasourceNavPanel.panel
+        li.g-global-nav-li(data-toggle="collapse", data-target='#dataSAIPArch', data-parent="#datasourceNav")
+          a.g-nav-link.ds-SAIP(g-name='dsSAIPProject', g-target='dsSAIPProject') 
+            i.icon-download-cloud
+            span SAIP
+        #dataSAIPArch.dataSourceArch.collapse
 
-			if SSR_Project.id
-				.datasourceNavPanel.panel
-					li.g-global-nav-li(data-toggle="collapse", data-target='#dataCollectionArch', data-parent="#datasourceNav")
-						a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id g-name='dsSSRProject' g-target='dsSSRProject') 
-							i.icon-file-archive
-							span #{SSR_Project.get('name')}
-					#dataCollectionArch.dataSourceArch.collapse
+      if SSR_Project.id
+        .datasourceNavPanel.panel
+          li.g-global-nav-li(data-toggle="collapse", data-target='#dataCollectionArch', data-parent="#datasourceNav")
+            a.g-nav-link.ds-Filesystem(g-id=SSR_Project.id, g-name='dsSSRProject', g-target='dsSSRProject') 
+              i.icon-file-archive
+              span #{SSR_Project.get('name')}
+          #dataCollectionArch.dataSourceArch.collapse
 
-			if user.id
-				.datasourceNavPanel.panel
-					li.g-global-nav-li(data-toggle="collapse", data-target='#dataUSERArch', data-parent="#datasourceNav")
-						a.g-nav-link.ds-Girder(g-id=user.id g-name='dsUsers' g-target='dsUsers')
-							i.icon-edit
-							span #{user.name()}
-					#dataUSERArch.dataSourceArch.collapse
+      if user.id
+        .datasourceNavPanel.panel
+          li.g-global-nav-li(data-toggle="collapse", data-target='#dataUSERArch', data-parent="#datasourceNav")
+            a.g-nav-link.ds-Girder(g-id=user.id, g-name='dsUsers', g-target='dsUsers')
+              i.icon-edit
+              span #{user.name()}
+          #dataUSERArch.dataSourceArch.collapse
 
-		ul.viewButton(style='list-style: none;')
-			button.btn.btn-success#startView
-				i.icon-eye
-				a View
-	.s-nav-siderBar
-		span.hideBar
-.selectionDom
+    ul.viewButton(style='list-style: none;')
+      button#startView.btn.btn-success
+        i.icon-eye
+        a View
+  .s-nav-siderBar
+    span.hideBar
 .ssrVisualizer

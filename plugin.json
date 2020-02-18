@@ -2,7 +2,7 @@
     "name": "SSR",
     "description": "A SSR platform integrates HistomicsTK/RadiologyTK with Miport/Orthanc/Girder DB",
     "version": "0.1.0",
-    "dependencies": ["Archive","NCIAuth","AMI_plugin","jobs","d3_plugin","SSR_task"],
+    "dependencies": ["Archive","NCIAuth","AMI_plugin","jobs","worker","d3_plugin","SSR_task"],
     "grunt": {
         "file": "Gruntfile.js"
     },

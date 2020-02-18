@@ -1,13 +1,15 @@
 import View from 'girder/views/View';
 import Folder from 'girder/models/FolderModel';
+
+import EditingWidget from '../widgets/EditingWidget';
 import events from '../../events';
+import router from '../../router';
+
 import ImageActionsTemplate from '../../templates/dataSource/ImageActionsTemplate.pug';
 import ImageNameWidget from '../../templates/widgets/ImageName.pug';
 import EditingMode from '../../templates/widgets/EditingMode.pug';
-import router from '../../router';
+
 import '../../stylesheets/widgets/ImageActions.styl';
-import editingWidget from '../widgets/EditingWidget';
-import { restRequest } from 'girder/rest';
 
 var imageActions = View.extend({
     events: {
@@ -15,7 +17,7 @@ var imageActions = View.extend({
         'click #backward': 'backward',
         'click .imageSelected': 'selectRandom'
     },
-    initialize(settings){
+    initialize(settings) {
         this.mode = settings.mode || 'view';
         this.currentImageSegmentations = settings.currentImageSegmentations || '';
         this.currentViewFolderId = settings.currentViewFolderId;
@@ -24,7 +26,7 @@ var imageActions = View.extend({
         this.currentImage = settings.currentImage;
         this.fromFilesystem = settings.fromFilesystem;
         this.fromSaipArchive = settings.fromSaipArchive;
-        this.itemsCollectionIds = settings.itemsCollectionIds
+        this.itemsCollectionIds = settings.itemsCollectionIds;
         this.currentImageId = settings.currentImageId;
 
         if (this.fromFilesystem) {
@@ -40,7 +42,7 @@ var imageActions = View.extend({
                 accessLevel: folder._accessLevel
             }));
             $('.mode').html(EditingMode());
-            if (this.mode === 'view') { 
+            if (this.mode === 'view') {
                 $('#modeSwitch')
                     .bootstrapSwitch('state', false)
                     .on('switchChange.bootstrapSwitch', (event, state) => {
@@ -48,38 +50,38 @@ var imageActions = View.extend({
                             let opts = {
                                 el: $('#g-dialog-container'),
                                 parentView: this,
-                                currentImageSegmentations: settings.currentImageSegmentations
-                            }
-                            new editingWidget(opts).render();
+                                currentImageSegmentations: this.currentImageSegmentations
+                            };
+                            new EditingWidget(opts).render();
                         } else {
                             let opts = {
                                 el: $('#g-dialog-container'),
                                 currentViewFolderId: this.currentViewFolderId,
                                 parentView: this
                             };
-                            new editingWidget(opts);
+                            new EditingWidget(opts);
                         }
                     });
             } else {
                 $('#modeSwitch')
                     .bootstrapSwitch('state', true)
                     .on('switchChange.bootstrapSwitch', (event, state) => {
-                        if(state){
-                        let opts = {
-                            el: $('#g-dialog-container'),
-                            currentViewFolderId: this.currentViewFolderId,
-                            parentView: this,
-                            currentImageSegmentations: settings.currentImageSegmentations
-                        };
-                        new editingWidget(opts).render();
-                        }else{
-                        let opts = {
-                            el: $('#g-dialog-container'),
-                            currentViewFolderId: this.currentViewFolderId,
-                            parentView: this
-                        };
-                        new editingWidget(opts)
-                        router.setQuery('mode', 'view', {trigger: true});
+                        if (state) {
+                            let opts = {
+                                el: $('#g-dialog-container'),
+                                currentViewFolderId: this.currentViewFolderId,
+                                parentView: this,
+                                currentImageSegmentations: this.currentImageSegmentations
+                            };
+                            new EditingWidget(opts).render();
+                        } else {
+                            let opts = {
+                                el: $('#g-dialog-container'),
+                                currentViewFolderId: this.currentViewFolderId,
+                                parentView: this
+                            };
+                            new EditingWidget(opts);
+                            router.setQuery('mode', 'view', {trigger: true});
                         }
                     });
             }
@@ -88,7 +90,7 @@ var imageActions = View.extend({
                 currentImage: this.currentImage,
                 fromFilesystem: this.fromFilesystem,
                 fromSaipArchive: this.fromSaipArchive
-            }))
+            }));
         });
         return this;
     },
@@ -97,7 +99,7 @@ var imageActions = View.extend({
             accessLevel: true
         }));
         $('.mode').html(EditingMode());
-        if (this.mode === 'view') { 
+        if (this.mode === 'view') {
             $('#modeSwitch')
                 .bootstrapSwitch('state', false)
                 .on('switchChange.bootstrapSwitch', (event, state) => {
@@ -105,16 +107,16 @@ var imageActions = View.extend({
                         let opts = {
                             el: $('#g-dialog-container'),
                             parentView: this,
-                            currentImageSegmentations: settings.currentImageSegmentations
-                        }
-                        new editingWidget(opts).render();
+                            currentImageSegmentations: this.currentImageSegmentations
+                        };
+                        new EditingWidget(opts).render();
                     } else {
                         let opts = {
                             el: $('#g-dialog-container'),
                             currentViewFolderId: this.currentViewFolderId,
                             parentView: this
                         };
-                        new editingWidget(opts);
+                        new EditingWidget(opts);
                     }
                 });
         }
@@ -123,7 +125,7 @@ var imageActions = View.extend({
             currentImage: this.currentImage,
             fromFilesystem: this.fromFilesystem,
             fromSaipArchive: this.fromSaipArchive
-        }))
+        }));
         return this;
     },
     forward() {

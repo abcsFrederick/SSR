@@ -6,9 +6,9 @@ import View from 'girder/views/View';
 import eventStream from 'girder/utilities/EventStream';
 import { formatDate, DATE_SECOND } from 'girder/misc';
 import events from 'girder/events';
+import JobStatus from 'girder_plugins/jobs/JobStatus';
 
 import JobDetailsWidgetTemplate from '../../templates/widgets/jobDetailsWidget.pug';
-import JobStatus from 'girder_plugins/jobs/JobStatus';
 
 import 'girder_plugins/jobs/stylesheets/jobDetailsWidget.styl';
 

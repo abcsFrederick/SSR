@@ -1,9 +1,5 @@
-import FileListWidget from './FileListWidget';
-import ItemView from './ItemView';
-import UsersViewWidget from './UsersViewWidget';
+import EditingWidget from './EditingWidget';
 
 export {
-  FileListWidget,
-  ItemView,
-  UsersViewWidget
+    EditingWidget
 };
