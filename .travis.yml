@@ -104,7 +104,7 @@ before_install:
     - SSR_task_path=$girder_path/plugins/SSR_task
     - git clone https://github.com/abcsFrederick/SSR_task.git $SSR_task_path && git -C $SSR_task_path checkout $SSR_TASK_VERSION
 
-    - NCIAuth_path=$girder_path/plugins/NCIAuth_path
+    - NCIAuth_path=$girder_path/plugins/NCIAuth
     - git clone https://github.com/abcsFrederick/NCIAuth.git $NCIAuth_path && git -C $NCIAuth_path checkout $NCIAUTH_VERSION
 
     - export MONGO_VERSION=3.4.19
