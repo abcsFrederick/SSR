@@ -208,6 +208,7 @@ var dataSource =  View.extend({
                             }
                         }).then(_.bind((items) => {
                             this.segmentations = items;
+                            this.trigger('renderImageActions');
                             if (items.length) {
                                 let segmentationItemId = items[0]['segmentationId'];
                                 this.getImageFilesFromItemPromise(segmentationItemId).then((files) => {
@@ -269,6 +270,8 @@ var dataSource =  View.extend({
                         });
                     }
                     this.amiDisplayPreview.render(this.init, displayUrl);
+                    // Once render finish render segmentation
+                    // this.trigger('renderImageActions');
                 }, this).set({archive: 'SAIP'}).getSlices(this.currentImageId);
             }
         }
@@ -278,6 +281,7 @@ var dataSource =  View.extend({
             this.imageActions.destroy();
         }
         if (this.fromFilesystem) {
+            console.log(this.segmentations);
             this.imageActions = new ImageActions({
                 el: $('#Actions'),
                 mode: this.mode,
@@ -393,7 +397,6 @@ var dataSource =  View.extend({
                 this.itemsCollectionIds.push(this.itemsCollection.models[a].get('_id'));
             }
             this.currentImageId = this.currentImage.get('_id');
-            this.trigger('renderImageActions');
         }, this));
     },
     studyFolder(studyFolderId) {
@@ -413,7 +416,6 @@ var dataSource =  View.extend({
                 this.archiveItemsCollectionIds.push(this.archiveItemsCollection.models[a].get('id'));
             }
             this.currentSliceId = this.currentSlice.get('id');
-            this.trigger('renderImageActions');
         }, this).fetch({id: studyFolderId});
     },
     closePreviewModal() {
